@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "iostream": "cpp",
+        "memory_resource": "cpp",
+        "memory": "cpp",
+        "ostream": "cpp"
+    }
+}

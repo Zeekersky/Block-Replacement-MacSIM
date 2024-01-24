@@ -1,0 +1,64 @@
+####################################################################################################
+Interval
+####################################################################################################
+Cumulative:         Cycles:                  20000     Instructions:                  1200
+TOTAL_PACKET_CPU                                                0                             0
+
+TOTAL_PACKET_GPU                                            19798                         19798
+
+NOC_AVG_LATENCY_BASE                                        19798                         19798
+
+NOC_AVG_LATENCY_BASE_CPU                                        0                             0
+
+NOC_AVG_LATENCY_BASE_GPU                                    19798                         19798
+
+NOC_AVG_LATENCY                                           2110327                       106.593
+
+NOC_AVG_LATENCY_CPU                                             0                           NaN
+
+NOC_AVG_LATENCY_GPU                                       2110327                       106.593
+
+NOC_AVG_ACTIVE_PACKET_BASE                                  19798                         19798
+
+NOC_AVG_ACTIVE_PACKET_BASE_CPU                                  0                             0
+
+NOC_AVG_ACTIVE_PACKET_BASE_GPU                              19798                         19798
+
+NOC_AVG_ACTIVE_PACKET                                     1480384                       74.7744
+
+NOC_AVG_ACTIVE_PACKET_CPU                                       0                           NaN
+
+NOC_AVG_ACTIVE_PACKET_GPU                                 1480384                       74.7744
+
+NOC_IDLE_CHANNEL                                                0                             0
+
+NOC_IDLE_CHANNEL_CPU                                            0                             0
+
+NOC_IDLE_CHANNEL_GPU                                            0                             0
+
+NOC_IDLE_CHANNEL_L3                                             0                             0
+
+NOC_IDLE_CHANNEL_MC                                             0                             0
+
+NOC_AVG_WAIT_IN_ROUTER_BASE                                 71624                         71624
+
+NOC_AVG_WAIT_IN_ROUTER_BASE_CPU                                 0                             0
+
+NOC_AVG_WAIT_IN_ROUTER_BASE_GPU                             22032                         22032
+
+NOC_AVG_WAIT_IN_ROUTER_BASE_L3                              32630                         32630
+
+NOC_AVG_WAIT_IN_ROUTER_BASE_MC                              16962                         16962
+
+NOC_AVG_WAIT_IN_ROUTER                                    5401390                       75.4131
+
+NOC_AVG_WAIT_IN_ROUTER_CPU                                      0                           NaN
+
+NOC_AVG_WAIT_IN_ROUTER_GPU                                1158957                       52.6033
+
+NOC_AVG_WAIT_IN_ROUTER_L3                                 2729341                       83.6451
+
+NOC_AVG_WAIT_IN_ROUTER_MC                                 1513092                       89.2048
+
+NOC_LINK_ACTIVE                                            155478                        155478
+

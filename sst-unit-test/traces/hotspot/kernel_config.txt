@@ -1,0 +1,4 @@
+newptx
+131
+-1
+traces/hotspot/_Z14calculate_tempiPfS_S_iiiiffffff_0/Trace.txt

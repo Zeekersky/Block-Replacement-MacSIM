@@ -1,0 +1,29 @@
+file /home/akash/Use/macsim-2.01/macsim/SConstruct,line 52:
+	Configure(confdir = .sconf_temp)
+scons: Configure: Checking for c++0x conformance...
+scons: Configure: ".sconf_temp/conftest_d8f1c17d6d94684390033f3d7c06e9e5_0.cpp" is up to date.
+scons: Configure: The original builder output was:
+  |.sconf_temp/conftest_d8f1c17d6d94684390033f3d7c06e9e5_0.cpp <-
+  |  |
+  |  |    #include <vector>
+  |  |    #include <iostream>
+  |  |  
+  |  |    using namespace std;
+  |  |
+  |  |    int main(void)
+  |  |    {
+  |  |      vector<int> test_vector(5);
+  |  |      int sum = 0;
+  |  |      for (auto itr = test_vector.begin(); itr != test_vector.end(); ++itr) {
+  |  |        sum += (*itr);
+  |  |      }
+  |  |      cout << sum << "\N";
+  |  |    }
+  |  |    
+  |
+scons: Configure: ".sconf_temp/conftest_d8f1c17d6d94684390033f3d7c06e9e5_0_8f68aae6a60c52d397d97e7c2586074a.o" is up to date.
+scons: Configure: The original builder output was:
+  |g++ -o .sconf_temp/conftest_d8f1c17d6d94684390033f3d7c06e9e5_0_8f68aae6a60c52d397d97e7c2586074a.o -c -std=c++0x .sconf_temp/conftest_d8f1c17d6d94684390033f3d7c06e9e5_0.cpp
+  |
+scons: Configure: (cached) yes
+
