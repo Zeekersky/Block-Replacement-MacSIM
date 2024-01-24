@@ -6,13 +6,13 @@ INST_COUNT_TOT                                            4995033               
 
 UOP_COUNT_TOT                                             6747055                       6747055
 
-CYC_COUNT_TOT                                            30621967                      30621967
+CYC_COUNT_TOT                                            30622217                      30622217
 
 EXE_TIME                                                       14                            14
 
 NUM_REPEAT                                                      0                             0
 
-CYC_COUNT_X86                                            30621966                      30621966
+CYC_COUNT_X86                                            30622216                      30622216
 
 CYC_COUNT_PTX                                                   0                             0
 
@@ -36,7 +36,7 @@ APPL_CYC_COUNT_BASE3                                            0               
 
 APPL_CYC_COUNT_BASE4                                            0                             0
 
-APPL_CYC_COUNT0                                          30621966                    3.0622e+07
+APPL_CYC_COUNT0                                          30622216                   3.06222e+07
 
 APPL_CYC_COUNT1                                                 0                           NaN
 
@@ -74,7 +74,7 @@ INST_COUNT_CORE_0                                         4995033               
 
 UOP_COUNT_CORE_0                                          6747055                       6747055
 
-CYC_COUNT_CORE_0                                          9186591                       9186591
+CYC_COUNT_CORE_0                                          9186666                       9186666
 
 INST_COUNT_CORE_1                                               0                             0
 

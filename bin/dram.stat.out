@@ -2,17 +2,17 @@
 Interval
 ####################################################################################################
 Cumulative:         Cycles:                  20000     Instructions:                  1200
-DRAM_PRECHARGE                                               7138                          7138
+DRAM_PRECHARGE                                               7146                          7146
 
-DRAM_ACTIVATE                                                7146                          7146
+DRAM_ACTIVATE                                                7154                          7154
 
-DRAM_COLUMN                                                 13339                         13339
+DRAM_COLUMN                                                 13346                         13346
 
-DRAM_AVG_LATENCY_BASE                                       13339                         13339
+DRAM_AVG_LATENCY_BASE                                       13346                         13346
 
-DRAM_AVG_LATENCY                                           591176                       44.3194
+DRAM_AVG_LATENCY                                           591611                       44.3287
 
-BANDWIDTH_TOT                                              853696                        853696
+BANDWIDTH_TOT                                              854144                        854144
 
 DRAM_CHANNEL0_BANDWIDTH_SATURATED                             652                           652
 
@@ -32,7 +32,7 @@ DRAM_CHANNEL7_BANDWIDTH_SATURATED                               0               
 
 DRAM_CHANNEL0_DBUS_IDLE                                   4844723                       4844723
 
-DRAM_CHANNEL1_DBUS_IDLE                                   4847595                       4847595
+DRAM_CHANNEL1_DBUS_IDLE                                   4847619                       4847619
 
 DRAM_CHANNEL2_DBUS_IDLE                                         0                             0
 

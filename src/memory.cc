@@ -1320,7 +1320,7 @@ void dcu_c::process_fill_queue()
           }
           
           // WRITE MISS
-          else if(req->m_type == MRT_DSTORE && m_level == MEM_L3)
+          else if((req->m_type == MRT_DSTORE && req->m_type == MRT_WB) && m_level == MEM_L3)
           {
             // cout << req->m_addr << " " << line_addr << " " 
             // << victim_line_addr << " " << req->m_type << endl; // DSTORE on MEM_L3: 8
@@ -1336,15 +1336,18 @@ void dcu_c::process_fill_queue()
           else
           {
             data = (dcache_data_s*)m_cache->insert_cache(req->m_addr, &line_addr, &victim_line_addr, req->m_appl_id, req->m_ptx);
+            // static int c2 = 0;
+            // c2++;
+            // cout << "count: " << " " << c2 << " Level: " << m_level << " Req Type: " << req->m_type << endl; // 23021
           }
 
 
-          if (m_level == MEM_L3 )//&& req->m_type != MRT_DSTORE && req->m_type != MRT_DFETCH && req->m_type != MRT_IFETCH)
-          {
-            static int c = 0;
-            c++;
-            cout << "count" << " " << c << " Req Type: " << req->m_type << " Queue: " << req->m_queue << endl;
-          }
+          // if (m_level == MEM_L3 && req->m_type != MRT_DSTORE && req->m_type != MRT_DFETCH && req->m_type != MRT_IFETCH && req->m_type != MRT_WB)
+          // {
+          //   static int c = 0;
+          //   c++;
+          //   cout << "count" << " " << c << " Req Type: " << req->m_type << " Queue: " << req->m_queue << endl;
+          // }
 
           if (m_level != MEM_L3) {
             POWER_CORE_EVENT(req->m_core_id, POWER_DCACHE_W + (m_level -1));

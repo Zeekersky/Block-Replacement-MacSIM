@@ -2,37 +2,37 @@
 Interval
 ####################################################################################################
 Cumulative:         Cycles:                  20000     Instructions:                  1200
-POWER_L3CACHE_LINEFILL_BUF_R                                13935                         13935
+POWER_L3CACHE_LINEFILL_BUF_R                                13936                         13936
 
-POWER_L3CACHE_LINEFILL_BUF_W                                13935                         13935
+POWER_L3CACHE_LINEFILL_BUF_W                                13936                         13936
 
-POWER_L3CACHE_LINEFILL_BUF_R_TAG                            13935                         13935
+POWER_L3CACHE_LINEFILL_BUF_R_TAG                            13936                         13936
 
-POWER_L3CACHE_WB_BUF_R                                        299                           299
+POWER_L3CACHE_WB_BUF_R                                        305                           305
 
-POWER_L3CACHE_WB_BUF_W                                        299                           299
+POWER_L3CACHE_WB_BUF_W                                        305                           305
 
-POWER_L3CACHE_WB_BUF_R_TAG                                    299                           299
+POWER_L3CACHE_WB_BUF_R_TAG                                    305                           305
 
-POWER_L3CACHE_R                                              9915                          9915
+POWER_L3CACHE_R                                              9914                          9914
 
-POWER_L3CACHE_W                                             13049                         13049
+POWER_L3CACHE_W                                             13053                         13053
 
 POWER_L3CACHE_R_TAG                                         22955                         22955
 
-POWER_MC_R                                                 112880                        112880
+POWER_MC_R                                                 112887                        112887
 
-POWER_MC_W                                                  13339                         13339
+POWER_MC_W                                                  13346                         13346
 
-POWER_BLOCK_STATES_R_CORE_0                               9186569                       9186569
+POWER_BLOCK_STATES_R_CORE_0                               9186644                       9186644
 
-POWER_BLOCK_STATES_W_CORE_0                               9186569                       9186569
+POWER_BLOCK_STATES_W_CORE_0                               9186644                       9186644
 
 POWER_FETCH_QUEUE_R_CORE_0                                6747056                       6747056
 
 POWER_FETCH_QUEUE_W_CORE_0                                6747055                       6747055
 
-POWER_INST_QUEUE_R_CORE_0                                14250091                      14250091
+POWER_INST_QUEUE_R_CORE_0                                14250238                      14250238
 
 POWER_INST_QUEUE_W_CORE_0                                 6747055                       6747055
 
@@ -74,17 +74,17 @@ POWER_OPERAND_DECODER_R_CORE_0                            4995033               
 
 POWER_OPERAND_DECODER_W_CORE_0                                  0                             0
 
-POWER_UOP_QUEUE_R_CORE_0                                 14250091                      14250091
+POWER_UOP_QUEUE_R_CORE_0                                 14250238                      14250238
 
 POWER_UOP_QUEUE_W_CORE_0                                  6747055                       6747055
 
-POWER_REG_RENAMING_TABLE_R_CORE_0                        14250091                      14250091
+POWER_REG_RENAMING_TABLE_R_CORE_0                        14250238                      14250238
 
 POWER_REG_RENAMING_TABLE_W_CORE_0                         6747055                       6747055
 
 POWER_DEP_CHECK_LOGIC_R_CORE_0                            6747055                       6747055
 
-POWER_FREELIST_R_CORE_0                                  14250091                      14250091
+POWER_FREELIST_R_CORE_0                                  14250238                      14250238
 
 POWER_FREELIST_W_CORE_0                                   6747055                       6747055
 
