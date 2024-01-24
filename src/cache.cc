@@ -283,11 +283,12 @@ void* cache_c::access_cache_count(Addr addr, Addr *line_addr, bool update_repl, 
           count_read_SRAM++;
       }
 
+      // NEED TO DISABLE THIS
       cout << "Set: " << set << " Write STT: " << count_write_STT << " Read STT: " << count_read_STT 
         << " Write SRAM: " << count_write_SRAM << " Read SRAM: " << count_read_SRAM << "\n";
     }
   }
-  
+
   return NULL;
 }
 
@@ -398,16 +399,21 @@ cache_entry_c* cache_c::find_replacement_line_with_partition(int set, int appl_i
 
   // cout << "Associativity: " << m_assoc << endl;
   // Ratio 3:1 for STT-RAM:SRAM
-  if(writemiss == 0)
-  {
-    m_assoc_start = 0;
-    m_assoc_end = m_assoc - (m_assoc/4); // If Read Miss, check for replacement only in STT-RAM i.e. 1 - 12 assoc.
-  }
-  else if(writemiss == 1)
+  if(writemiss == 1)
   {
     m_assoc_start = (m_assoc * 3)/4; // If Write Miss, check for replacement only in SRAM i.e. 13 - 16 assoc.
     m_assoc_end = m_assoc;
   }
+  else if(writemiss == 0)
+  {
+    m_assoc_start = 0;
+    m_assoc_end = m_assoc - (m_assoc/4); // If Read Miss, check for replacement only in STT-RAM i.e. 1 - 12 assoc.
+  }
+  // else
+  // {
+  //   m_assoc_start = 0;
+  //   m_assoc_end = m_assoc;
+  // }
 
   if (*m_simBase->m_knobs->KNOB_CACHE_USE_PSEUDO_LRU) {
     while (1) {
