@@ -173,6 +173,9 @@ class cache_c
      */
     void* access_cache (Addr addr, Addr *line_addr, bool update_repl, int appl_id);
 
+    // ADDED BY AKASH
+    void* access_cache_count(Addr addr, Addr *line_addr, bool update_repl, int appl_id, bool write_access);
+
     /**
      * Update a cache line on access
      */

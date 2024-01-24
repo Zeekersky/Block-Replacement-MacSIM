@@ -871,6 +871,34 @@ void dcu_c::process_in_queue()
       }
 
       // -------------------------------------
+      // ADDED BY AKASH
+      // L3 Cache write and read access
+      // -------------------------------------
+      if (m_level == MEM_L3 && (req->m_type == MRT_DSTORE || req->m_type == MRT_WB))
+      {
+        // cout << "L3 Cache write access" << endl;
+        // static int c = 0;
+        // c++;
+        // cout << "count" << " " << c << endl; // 31
+
+        bool write_access = true;
+        m_cache->access_cache_count(req->m_addr, &line_addr, 
+          req->m_type == MRT_WB ? false : true, req->m_appl_id, write_access);
+      }
+
+      if (m_level == MEM_L3 && (req->m_type == MRT_IFETCH || req->m_type == MRT_DFETCH))
+      {
+        // cout << "L3 Cache read access" << endl;
+        // static int c1 = 0;
+        // c1++;
+        // cout << "count_Read: " << " " << c1 << endl; //9884
+
+        bool write_access = false;
+        m_cache->access_cache_count(req->m_addr, &line_addr, 
+          req->m_type == MRT_WB ? false : true, req->m_appl_id, write_access);
+      }
+
+      // -------------------------------------
       // hardware prefetcher training
       // -------------------------------------
       m_simBase->m_core_pointers[req->m_core_id]->train_hw_pref(m_level, req->m_thread_id, \

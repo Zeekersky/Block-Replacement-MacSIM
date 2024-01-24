@@ -238,6 +238,59 @@ void* cache_c::access_cache(Addr addr, Addr *line_addr, bool update_repl, int ap
   return NULL;
 }
 
+// ADDED BY AKASH (MAJOR CHANGES)
+// Access the L3 Cache to get the count of write and read miss in 1-12 way and 13-16 way seperately
+void* cache_c::access_cache_count(Addr addr, Addr *line_addr, bool update_repl, int appl_id, bool write_access) 
+{
+  // Check if cache by pass is set. If so return NULL.
+  if (m_cache_by_pass)
+    return NULL;
+
+  Addr tag;
+  int set;
+
+  static int count_write_STT = 0;
+  static int count_read_STT = 0;
+  static int count_write_SRAM = 0;
+  static int count_read_SRAM = 0;
+
+  // Get Tag and set to check if the addr exists in cache
+  find_tag_and_set(addr, &tag, &set);
+  *line_addr = base_cache_line (addr);
+
+  // Walk through the set
+  for (int ii = 0; ii < m_assoc; ++ii) {
+    // For each line in based on associativity
+    cache_entry_c * line = &(m_set[set]->m_entry[ii]);
+
+    // Check for matching tag and validity
+    if (line->m_valid && line->m_tag == tag) {
+      // If hit, then return  
+      assert(line->m_data);
+
+      if (write_access)
+      {
+        if(ii < ((m_assoc * 3)/4))
+          count_write_STT++;
+        else
+          count_write_SRAM++;
+      }
+      else
+      {
+        if(ii < ((m_assoc * 3)/4))
+          count_read_STT++;
+        else
+          count_read_SRAM++;
+      }
+
+      cout << "Set: " << set << " Write STT: " << count_write_STT << " Read STT: " << count_read_STT 
+        << " Write SRAM: " << count_write_SRAM << " Read SRAM: " << count_read_SRAM << "\n";
+    }
+  }
+  
+  return NULL;
+}
+
 void cache_c::update_cache_on_access(Addr line_addr, int set, int appl_id)
 {
 }
@@ -342,6 +395,8 @@ cache_entry_c* cache_c::find_replacement_line_from_same_type(int set, int appl_i
 cache_entry_c* cache_c::find_replacement_line_with_partition(int set, int appl_id, int writemiss) 
 {
   int m_assoc_start, m_assoc_end;
+
+  // cout << "Associativity: " << m_assoc << endl;
   // Ratio 3:1 for STT-RAM:SRAM
   if(writemiss == 0)
   {
@@ -351,11 +406,6 @@ cache_entry_c* cache_c::find_replacement_line_with_partition(int set, int appl_i
   else if(writemiss == 1)
   {
     m_assoc_start = (m_assoc * 3)/4; // If Write Miss, check for replacement only in SRAM i.e. 13 - 16 assoc.
-    m_assoc_end = m_assoc;
-  }
-  else
-  {
-    m_assoc_start = 0;
     m_assoc_end = m_assoc;
   }
 
@@ -452,6 +502,7 @@ void *cache_c::insert_cache(Addr addr, Addr *line_addr, Addr *updated_line, int 
   // if (m_enable_partition)
   //   cout << "Partition Enable:" << endl;
 
+  // ---------------------------------------------------------------
   // ADDED BY AKASH
   // To enable partitioning, set m_enable_hybrid as true
   // To enable partitioning along with gpu, we need to create an alternative of find_replacement_line_from_same_type with partition logic (Not Implemented Yet)
@@ -473,7 +524,14 @@ void *cache_c::insert_cache(Addr addr, Addr *line_addr, Addr *updated_line, int 
   else
   {
     // ADDED BY AKASH
-    ins_line = find_replacement_line_with_partition(set, appl_id, writemiss);
+    if (writemiss != 2)
+    {
+      ins_line = find_replacement_line_with_partition(set, appl_id, writemiss);
+    }
+    else
+    {
+      ins_line = find_replacement_line(set, appl_id);
+    }
   }
 
   // Populate the update_line variable if the present line was in use
@@ -500,7 +558,7 @@ void *cache_c::insert_cache(Addr addr, Addr *line_addr, Addr *updated_line, int 
 
   // Check if prefetch flag was set and update the field accordingly
   ++m_insert_count;
-  
+
   // cout << "Set: " << set << " Tag: " << tag << " Insert Count: " << m_insert_count << "\n";
   // PRINT Set:
   // cout << "Set: " << set << "\n";
