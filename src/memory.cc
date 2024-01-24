@@ -1339,12 +1339,12 @@ void dcu_c::process_fill_queue()
           }
 
 
-          // if (m_level == MEM_L3 && req->m_type != MRT_DSTORE && req->m_type != MRT_DFETCH && req->m_type != MRT_IFETCH)
-          // {
-          //   static int c = 0;
-          //   c++;
-          //   cout << "count" << " " << c << " Req Type: " << req->m_type << endl;
-          // }
+          if (m_level == MEM_L3 )//&& req->m_type != MRT_DSTORE && req->m_type != MRT_DFETCH && req->m_type != MRT_IFETCH)
+          {
+            static int c = 0;
+            c++;
+            cout << "count" << " " << c << " Req Type: " << req->m_type << " Queue: " << req->m_queue << endl;
+          }
 
           if (m_level != MEM_L3) {
             POWER_CORE_EVENT(req->m_core_id, POWER_DCACHE_W + (m_level -1));
