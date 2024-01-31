@@ -1335,12 +1335,12 @@ void dcu_c::process_fill_queue()
             // c++;
             // cout << "count_FETCH: " << " " << c << endl;
 
-            for(int ii = 0; ii<m_num_set; ++ii){
-              for(int jj = 0; jj<m_assoc; ++jj){
-                // cout << "Set: " << ii << " " << "Way: " << jj << " " << "Addr: " << m_cache->m_set[ii] << endl;
-                // find set and tag for req line addr and print the entry
-                }
-              }
+            // for(int ii = 0; ii<m_num_set; ++ii){
+            //   for(int jj = 0; jj<m_assoc; ++jj){
+            //     cout << "Set: " << ii << " " << "Way: " << jj << " " << "Addr: " << m_cache->m_set[ii] << endl;
+            //     find set and tag for req line addr and print the entry
+            //     }
+            //   }
               
             // WRITEMISS is introduced by AKASH
             int writemiss = 0; // 0: Read Miss

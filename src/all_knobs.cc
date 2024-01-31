@@ -503,8 +503,6 @@ all_knobs_c::all_knobs_c() {
 	KNOB_LLC_TYPE = new KnobTemplate< string > ("llc_type", "default");
 	KNOB_COLLECT_CACHE_INFO = new KnobTemplate< int > ("collect_cache_info", 0);
 	KNOB_HETERO_STATIC_CACHE_PARTITION = new KnobTemplate< bool > ("hetero_static_cache_partition", false);
-	// ADDED BY AKASH
-	// KNOB_HETERO_STATIC_CACHE_PARTITION = new KnobTemplate< bool > ("hetero_static_cache_partition", true);
 	KNOB_HETERO_STATIC_CPU_PARTITION = new KnobTemplate< int > ("hetero_static_cpu_partition", 1);
 	KNOB_HETERO_STATIC_GPU_PARTITION = new KnobTemplate< int > ("hetero_static_gpu_partition", 1);
 	KNOB_HETERO_GPU_CORE_DISABLE = new KnobTemplate< int > ("hetero_gpu_core_disable", -2);
