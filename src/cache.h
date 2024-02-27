@@ -173,7 +173,7 @@ class cache_c
      */
     void* access_cache (Addr addr, Addr *line_addr, bool update_repl, int appl_id);
 
-    // ADDED BY AKASH
+    // ADDED BY SKY
     void* access_cache_count(Addr addr, Addr *line_addr, bool update_repl, int appl_id, bool write_access);
 
     /**
@@ -212,7 +212,7 @@ class cache_c
      */
     cache_entry_c* find_replacement_line_from_same_type(int set, int appl_id, bool gpuline);
 
-    // ADDED BY AKASH
+    // ADDED BY SKY
     cache_entry_c* find_replacement_line_with_partition(int set, int appl_id, int writemiss);
 
     /**
@@ -255,10 +255,13 @@ class cache_c
      * \param skip 
      * \return void* - Pointer to the data of the new cache line
      */
-    // ADDED BY AKASH
-    // void * insert_cache (Addr addr, Addr *line_addr, Addr *repl_line, int appl_id, 
-    //     bool gpuline, int writemiss);
 
+    
+    // DISABLE BY SKY
+    // void * insert_cache (Addr addr, Addr *line_addr, Addr *repl_line, int appl_id, 
+    //     bool gpuline, bool skip);
+
+    // ADDED BY SKY
     void * insert_cache (Addr addr, Addr *line_addr, Addr *repl_line, int appl_id, 
         bool gpuline, bool skip, int writemiss);
 
@@ -312,7 +315,6 @@ class cache_c
 
   public:
     Cache_Type m_cache_type; /**< cache type */
-    cache_set_c** m_set;       /**< cache data structure */
 
   protected:
     string  m_name;              /**< cache name */ 
@@ -339,7 +341,7 @@ class cache_c
     int     m_interleave_bits;   /**< number of bits taken by interleaving factor */
     Addr    m_interleave_mask;   /**< interleave factor mask */
     
-    // cache_set_c** m_set;       /**< cache data structure */
+    cache_set_c** m_set;       /**< cache data structure */
 
     macsim_c* m_simBase; /**< macsim_c base class for simulation globals */
 };

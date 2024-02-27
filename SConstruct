@@ -9,7 +9,6 @@
 import os
 import sys
 import configparser
-from SCons.Script import Environment
 
 
 ## Check c++0x support

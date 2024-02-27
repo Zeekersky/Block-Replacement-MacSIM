@@ -54,7 +54,6 @@ shared_mem_ports 1
 byte_level_access 0
 
 l1_small_line_size 128
-l1_small_latency 4
 #48 KB
 l1_small_num_set 64
 l1_small_assoc 6
@@ -62,14 +61,13 @@ l1_small_assoc 6
 #l1_small_num_set 32
 #l1_small_assoc 4
 
-
 # L3 Cache
 num_l3 6
 l3_num_set 128
 l3_line_size 128
 l3_assoc 8
 l3_num_bank 4
-l3_latency 90 
+l3_latency 10 
 
 
 # DRAM
@@ -82,7 +80,6 @@ dram_num_banks 16
 dram_num_channel 1
 dram_rowbuffer_size 2048
 dram_scheduling_policy FRFCFS
-dram_additional_latency 300
 
 
 
@@ -99,7 +96,7 @@ bug_detector_enable 1
 sim_cycle_count 0
 max_insts 200000000
 heartbeat_interval 1000000
-forward_progress_limit 5000000
+forward_progress_limit 50000
 blocks_to_simulate 0
 ptx_exec_ratio 2
 num_warp_scheduler 2

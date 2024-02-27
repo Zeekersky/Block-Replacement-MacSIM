@@ -64,15 +64,11 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "network_simple.h"
 #include "factory_class.h"
 #include "dram.h"
+#include "dyfr.h"
 
 #include "all_knobs.h"
 #include "all_stats.h"
 #include "statistics.h"
-
-
-#ifdef POWER_EI
-#include "ei_power.h"
-#endif
 
 
 using namespace std;
@@ -116,6 +112,7 @@ macsim_c::macsim_c()
   m_simulation_cycle = 0;
   m_core0_inst_count = 0;
 
+  m_pll_lockout = 0;
 }
 
 
@@ -141,9 +138,10 @@ void macsim_c::init_knobs(int argc, char** argv)
   m_knobs = m_knobsContainer->getAllKnobs();
 
 #ifdef USING_SST
-  string  paramPath(argv[0]);
-  string  tracePath(argv[1]);
-  string outputPath(argv[2]);
+  string         bin(argv[0]);
+  string   paramPath(argv[1]);
+  string   tracePath(argv[2]);
+  string  outputPath(argv[3]);
 
   //Apply specified params.in file
   m_knobsContainer->applyParamFile(paramPath);
@@ -154,6 +152,10 @@ void macsim_c::init_knobs(int argc, char** argv)
   //Specify output path for statistics
   m_knobsContainer->updateKnob("out", outputPath);
 
+  char* pInvalidArgument = NULL;
+  if (!m_knobsContainer->applyComandLineArguments(argc-3, argv+3, &pInvalidArgument)) {
+  }
+
   //save the states of all knobs to a file
   m_knobsContainer->saveToFile(outputPath + "/params.out");
 
@@ -163,7 +165,7 @@ void macsim_c::init_knobs(int argc, char** argv)
 
   // apply the supplied command line switches
   char* pInvalidArgument = NULL;
-  if(!m_knobsContainer->applyComandLineArguments(argc, argv, &pInvalidArgument)) {
+  if (!m_knobsContainer->applyComandLineArguments(argc, argv, &pInvalidArgument)) {
   }
 
   // save the states of all knobs to a file
@@ -186,6 +188,9 @@ void macsim_c::register_functions(void)
 
   dram_factory_c::get()->register_class("FRFCFS", frfcfs_controller);
   dram_factory_c::get()->register_class("FCFS", fcfs_controller);
+#ifdef USING_SST
+  dram_factory_c::get()->register_class("VAULTSIM", vaultsim_controller);
+#endif
 
   fetch_factory_c::get()->register_class("rr", fetch_factory);
   pref_factory_c::get()->register_class(pref_factory);
@@ -236,7 +241,6 @@ void macsim_c::init_memory(void)
   // dram controller
   m_num_mc = m_simBase->m_knobs->KNOB_DRAM_NUM_MC->getValue();
   m_dram_controller = new dram_c*[m_num_mc];
-  int num_noc_node = m_num_sim_cores + *KNOB(KNOB_NUM_L3);
   for (int ii = 0; ii < m_num_mc; ++ii) {
     m_dram_controller[ii] = dram_factory_c::get()->allocate(
         m_simBase->m_knobs->KNOB_DRAM_SCHEDULING_POLICY->getValue(), m_simBase);
@@ -251,6 +255,9 @@ void macsim_c::init_memory(void)
     printf("enabling bug detector\n");
     m_bug_detector = new bug_detector_c(m_simBase);
   }
+
+  //Dynamic Frequency
+  m_dyfr = new dyfr_c(this, m_num_sim_cores);
 
   // ETC
   m_termination_check = new bool[m_num_sim_cores];
@@ -273,8 +280,8 @@ void macsim_c::init_output_streams()
 
     if (!g_mystderr) {
       fprintf(stderr, "\n");
-      fprintf(stderr, "%s:%d: ASSERT FAILED (I=%s  C=%s):  ", __FILE__, __LINE__,
-          unsstr64(m_core0_inst_count), unsstr64(m_simulation_cycle));
+      fprintf(stderr, "%s:%d: ASSERT FAILED (I=%llu  C=%llu):  ", __FILE__, __LINE__,
+          m_core0_inst_count, m_simulation_cycle);
       fprintf(stderr, "%s '%s'\n", "mystderr", stderr_file.c_str());
       breakpoint(__FILE__, __LINE__);
       exit(15);
@@ -286,8 +293,8 @@ void macsim_c::init_output_streams()
 
     if (!g_mystdout) {
       fprintf(stderr, "\n");
-      fprintf(stderr, "%s:%d: ASSERT FAILED (I=%s  C=%s):  ", __FILE__, __LINE__,
-          unsstr64(m_core0_inst_count), unsstr64(m_simulation_cycle));
+      fprintf(stderr, "%s:%d: ASSERT FAILED (I=%llu  C=%llu):  ", __FILE__, __LINE__,
+          m_core0_inst_count, m_simulation_cycle);
 
       fprintf(stderr, "%s '%s'\n", "mystdout", stdout_file.c_str()); 
       breakpoint(__FILE__, __LINE__);
@@ -300,8 +307,8 @@ void macsim_c::init_output_streams()
 
     if (!g_mystatus) {
       fprintf(stderr, "\n");
-      fprintf(stderr, "%s:%d: ASSERT FAILED (I=%s  C=%s):  ", __FILE__, __LINE__,
-          unsstr64(m_core0_inst_count), unsstr64(m_simulation_cycle));
+      fprintf(stderr, "%s:%d: ASSERT FAILED (I=%llu  C=%llu):  ", __FILE__, __LINE__,
+          m_core0_inst_count, m_simulation_cycle);
       fprintf(stderr, "%s '%s'\n", "mystatus", status_file.c_str());
       breakpoint(__FILE__, __LINE__);
       exit(15);
@@ -515,12 +522,6 @@ void macsim_c::init_network(void)
   m_iris_network->connect_interface_routers();
   m_iris_network->connect_routers();
 
-#ifdef POWER_EI
-  //initialize power stats
-  avg_power     = 0;
-  total_energy  = 0;
-  total_packets = 0;
-#endif
 #endif
 }
 
@@ -545,20 +546,6 @@ void macsim_c::init_sim(void)
   ASSERTU(sizeof(int32) == 4);
   ASSERTU(sizeof(int64) == 8);
 }
-
-
-#ifdef POWER_EI
-// =======================================
-// =======================================
-void macsim_c::compute_power(void)
-{
-  m_ei_power = new ei_power_c(m_simBase);
-  m_ei_power->ei_config_gen_top();    // to make config file for EI
-  m_ei_power->ei_main();
-
-  delete m_ei_power;
-}
-#endif
 
 
 // =======================================
@@ -596,6 +583,11 @@ void macsim_c::deallocate_memory(void)
   delete m_invalid_uop;
   delete m_memory;
   delete m_network;
+
+  for (int ii = 0; ii < m_num_mc; ++ii) {
+    delete m_dram_controller[ii];
+  }
+  delete [] m_dram_controller;
 
   if (*m_simBase->m_knobs->KNOB_BUG_DETECTOR_ENABLE)
     delete m_bug_detector;
@@ -638,13 +630,6 @@ void macsim_c::fini_sim(void)
        m_end_sim.tv_usec - m_begin_sim.tv_usec)/1000000.0);
   STAT_EVENT_N(EXE_TIME, second);
 
-#ifdef POWER_EI
-  // compute power if enable_energy_introspector is enabled
-  if (*KNOB(KNOB_ENABLE_ENERGY_INTROSPECTOR)) {
-    compute_power();
-  }
-#endif
-
 
 #ifdef IRIS
   ofstream irisTraceFile;
@@ -686,11 +671,6 @@ void macsim_c::fini_sim(void)
     //        m_iris_network->routers[i]->print_stats();
     m_iris_network->routers[ii]->power_stats();
   }
-#ifdef POWER_EI
-  cout << "Average Network power: " << avg_power << "W\n"
-    << "Total Network Energy: " << total_energy << "J\n"
-    << "Total packets " << total_packets << "\n";
-#endif
 #endif
 }
 
@@ -849,8 +829,10 @@ void macsim_c::init_clock_domain(void)
     m_domain_next[ii+m_num_sim_cores]  = 0;
   }
 
-
-  m_clock_lcm = 100; /* 10 ns loop */
+  m_clock_lcm = m_domain_freq[0];
+  for (int i = 1; i < 3 + m_num_sim_cores; i++) {
+    m_clock_lcm = lcm(m_clock_lcm, m_domain_freq[i]);
+  }
 
   report("Clock LCM           : " << m_clock_lcm);
   report("CPU clock frequency : " << *KNOB(KNOB_CLOCK_CPU) << " GHz");
@@ -871,6 +853,11 @@ void macsim_c::init_clock_domain(void)
 // =======================================
 int macsim_c::run_a_cycle() 
 {
+#ifdef USING_SST
+  if (!m_started)
+    return 1; // simulation not started/finished
+#endif //USING_SST
+
   // termination condition check
   // 1. no active threads in the system
   // 2. repetition has been done (in case of multiple applications simulation)
@@ -880,8 +867,6 @@ int macsim_c::run_a_cycle()
     return 0; //simulation finished
   }
 
-  bool pll_locked = false;
-
   if (m_termination_count == m_num_sim_cores) {
     m_termination_count = 0;
     fill_n(m_termination_check, m_num_sim_cores, false);
@@ -890,6 +875,23 @@ int macsim_c::run_a_cycle()
 
   Counter pivot = m_core_cycle[0] + 1;
 
+  // Dynamic Frequency
+  // on lock pll is trying to lock on frequency - all units stall
+  bool pll_locked = (m_pll_lockout > 0);
+
+  if (pll_locked) {
+    m_dyfr->reset();
+    --m_pll_lockout;
+    if (m_pll_lockout <= 0) {
+      cout << "PLL_UNLOCKED at " << m_simulation_cycle << "\n"; 
+    }
+  }
+
+  // update dyfr only after 1ms based on sampling period 
+  int dyfr_sample_period = *KNOB(KNOB_DYFR_SAMPLE_PERIOD);
+  if (m_simulation_cycle > 10000000 && m_simulation_cycle % dyfr_sample_period == 0) {
+    m_dyfr->update();
+  }
 
   // interconnection
   if (m_clock_internal == m_domain_next[CLOCK_NOC]) {
@@ -1031,4 +1033,96 @@ void macsim_c::finalize()
   cout << "Done\n";
 }
 
+// =======================================
+// Change frequency of a core
+// =======================================
+#define LATENCY_APPLY_FREQUENCY 10000 //1us
 
+void macsim_c::change_frequency_core(int id, int freq)
+{
+  m_freq_ready.push(m_simulation_cycle+LATENCY_APPLY_FREQUENCY);
+  m_freq_id.push(id);
+  m_freq.push(freq);
+  //report("ID:" << id << " new frequency:" << freq << " (" << m_simulation_cycle+LATENCY_APPLY_FREQUENCY << ") added");
+
+}
+
+// =======================================
+// Change frequency of other units core
+// 0: l3, 1: noc, 2: mc
+// =======================================
+void macsim_c::change_frequency_uncore(int type, int freq)
+{
+  m_freq_ready.push(m_simulation_cycle + LATENCY_APPLY_FREQUENCY);
+  m_freq_id.push(m_num_sim_cores + type);
+  m_freq.push(freq);
+}
+
+
+// =======================================
+// Function to check outstanding requests
+// to change frequency of units
+// =======================================
+void macsim_c::apply_new_frequency(void)
+{
+  // set up pll_lockout - duration when all units stall
+  if (!m_freq_ready.empty()) {
+    m_pll_lockout = KNOB(KNOB_DYFR_PLL_LOCK)->getValue(); 
+    cout << "PLL_LOCKED at " << m_simulation_cycle << "\n"; 
+  }
+
+  // process the queue and apply frequencies for this simulation cycle
+  while (!m_freq_ready.empty()) {
+    int id = m_freq_id.front();
+    int freq = m_freq.front();
+    report("ID:" << id << " new frequency:" << freq << " (" << m_simulation_cycle << ") enforced " << m_freq_ready.front());
+
+
+    m_freq_ready.pop();
+    m_freq_id.pop();
+    m_freq.pop();
+
+    m_domain_freq[id] = freq;
+  }
+}
+
+// =======================================
+// Returns a core current frequency
+// =======================================
+int macsim_c::get_current_frequency_core(int core_id)
+{
+  return m_domain_freq[core_id];
+}
+
+// =======================================
+// Returns a unit current frequency
+// 0: l3, 1: noc, 2: mc
+// =======================================
+int macsim_c::get_current_frequency_uncore(int type)
+{
+  return m_domain_freq[m_num_sim_cores + type];
+}
+
+#ifdef USING_SST
+void macsim_c::registerCallback(
+    CallbackSendInstReq* sir, 
+    CallbackSendDataReq* sdr, 
+    CallbackStrobeInstRespQ* sirq, 
+    CallbackStrobeDataRespQ* sdrq)
+{
+  sendInstReq = sir;
+  sendDataReq = sdr;
+  strobeInstRespQ = sirq;
+  strobeDataRespQ = sdrq;
+
+  sendCubeReq = NULL;
+}
+
+void macsim_c::registerCallback(
+    CallbackSendCubeReq* scr, 
+    CallbackStrobeCubeRespQ* scrq)
+{
+  sendCubeReq = scr;
+  strobeCubeRespQ = scrq;
+}
+#endif //USING_SST

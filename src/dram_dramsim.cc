@@ -98,8 +98,9 @@ void dram_dramsim_c::init(int id)
 }
 
 
-void dram_dramsim_c::run_a_cycle(void)
+void dram_dramsim_c::run_a_cycle(bool temp)
 {
+  send();
   m_dramsim->update();
   receive();
   ++m_cycle;
@@ -166,8 +167,8 @@ void dram_dramsim_c::send(void)
     bool insert_packet = NETWORK->send(req, MEM_MC, m_id, MEM_L3, req->m_cache_id[MEM_L3]);
     
     if (!insert_packet) {
-      DEBUG("MC[%d] req:%d addr:%s type:%s noc busy\n", 
-          m_id, req->m_id, hexstr64s(req->m_addr), mem_req_c::mem_req_type_name[req->m_type]);
+      DEBUG("MC[%d] req:%d addr:0x%llx type:%s noc busy\n", 
+          m_id, req->m_id, req->m_addr, mem_req_c::mem_req_type_name[req->m_type]);
       break;
     }
 
@@ -181,6 +182,14 @@ void dram_dramsim_c::send(void)
   for (auto I = temp_list.begin(), E = temp_list.end(); I != E; ++I) {
     m_output_buffer->remove((*I));
   }
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+// wrapper functions to allocate dram controller object
+
+dram_c* dramsim_controller(macsim_c* simBase)
+{
+  return new dram_dramsim_c(simBase);
 }
 
 #endif

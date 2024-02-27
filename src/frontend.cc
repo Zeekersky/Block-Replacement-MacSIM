@@ -74,7 +74,7 @@ bool icache_fill_line_wrapper(mem_req_s *req)
   macsim_c* m_simBase = req->m_simBase;
 
   bool result = true;
-  DEBUG("req:%d called icache_done_func\n", req->m_id);
+  DEBUG_CORE(req->m_core_id, "req:%d called icache_done_func\n", req->m_id);
 
   // serve merged request
   list<mem_req_s*> done_list;
@@ -223,7 +223,7 @@ void frontend_c::run_a_cycle(void)
     // get thread id to fetch
     int fetch_thread = fetch();
 
-    DEBUG("m_core_id:%d frontend fetch thread is:%d \n", m_core_id, fetch_thread);
+    DEBUG_CORE(m_core_id, "m_core_id:%d frontend fetch thread is:%d \n", m_core_id, fetch_thread);
 
     // nothing to fetch
     if (fetch_thread == -1) {
@@ -237,7 +237,7 @@ void frontend_c::run_a_cycle(void)
 
     // in case of double fetch, stop fetching if second thread is not available
     if (prev_fetched_tid == fetch_thread) {
-      DEBUG("same thread id m_core_id:%d tid:%d prev_tid:%d\n",
+      DEBUG_CORE(m_core_id, "same thread id m_core_id:%d tid:%d prev_tid:%d\n",
           m_core_id, fetch_thread, prev_fetched_tid);
       break;
     }
@@ -262,11 +262,38 @@ void frontend_c::run_a_cycle(void)
         // fetch stalled
         case FRONTEND_MODE_WAIT_FOR_MISS:
           fetch_data->m_fe_prev_mode = FRONTEND_MODE_WAIT_FOR_MISS;
+
+        #ifdef USING_SST
+          if (KNOB(KNOB_USE_MEMHIERARCHY)->getValue()) {
+            if (!(KNOB(KNOB_USE_VAULTSIM_LINK)->getValue() && (m_core->get_unit_type() == UNIT_SMALL))) {
+              // Strobing
+              for (auto I = m_fetch_buffer.begin(), E = m_fetch_buffer.end(); I != E; I++) {
+                bool responseArrived = (*(m_simBase->strobeInstRespQ))(m_core_id, I->first);
+                if (responseArrived) {
+                  I->second = true;
+                }
+              }
+
+              uint64_t key = UNIQUE_KEY(m_core_id, fetch_thread, fetch_data->m_fetch_ready_addr, 0);
+              auto i = m_fetch_buffer.find(key);
+              if (m_fetch_buffer.end() != i) {
+                bool responseArrived = i->second;
+                if (responseArrived) {
+                  // fetching from this thread is unblocked. now it can be fetched
+                  fetch_data->m_fetch_ready_addr = 0;
+                }
+              } else { // this should not be reached
+                ASSERTM(0, "fetch_data not found\n");
+              }
+            } 
+          }
+        #endif //USING_SST
+
           if (check_fetch_ready(fetch_thread)) {
             fetch_data->m_fe_mode = FRONTEND_MODE_IFETCH;
           }
           else {
-            DEBUG("fetch stalled m_core_id:%d tid:%d\n", m_core_id, fetch_thread);
+            DEBUG_CORE(m_core_id, "fetch stalled m_core_id:%d tid:%d\n", m_core_id, fetch_thread);
           }
           break;
 
@@ -290,12 +317,10 @@ void frontend_c::run_a_cycle(void)
     if (m_sync_done.size() > 0) {
       int32_t block_id;
       bool status;
-      uint64_t min;
 
       while (m_sync_done.size() > 0) {
         block_id = m_sync_done.front();
         m_sync_done.pop_front();
-        min = ~0;
 
         for (int tid = m_last_terminated_tid; tid < m_unique_scheduled_thread_num; ++tid) {
           /* this condition is not needed */
@@ -348,11 +373,17 @@ FRONTEND_MODE frontend_c::process_ifetch(unsigned int tid, frontend_s* fetch_dat
       fetch_data->m_MT_scheduler.m_next_fetch_addr = prev_trace_info->m_inst_addr;
     }
     else {
-      trace_info_cpu_s *prev_trace_info = static_cast<trace_info_cpu_s *>(thread->m_prev_trace_info);
-      fetch_data->m_MT_scheduler.m_next_fetch_addr = prev_trace_info->m_instruction_addr;
+      if (KNOB(KNOB_LARGE_CORE_TYPE)->getValue() == "x86") {
+        trace_info_cpu_s *prev_trace_info = static_cast<trace_info_cpu_s *>(thread->m_prev_trace_info);
+        fetch_data->m_MT_scheduler.m_next_fetch_addr = prev_trace_info->m_instruction_addr;
+      } else if (KNOB(KNOB_LARGE_CORE_TYPE)->getValue() == "a64") {
+        trace_info_a64_s *prev_trace_info = static_cast<trace_info_a64_s *>(thread->m_prev_trace_info);
+        fetch_data->m_MT_scheduler.m_next_fetch_addr = prev_trace_info->m_instruction_addr;
+      } else {
+        ASSERTM(0, "Wrong core type %s\n", KNOB(KNOB_LARGE_CORE_TYPE)->getValue().c_str());
+      }
     }
   }
-
 
   // -------------------------------------
   // check whether previous branch misprediction has been resolved
@@ -364,6 +395,9 @@ FRONTEND_MODE frontend_c::process_ifetch(unsigned int tid, frontend_s* fetch_dat
     return FRONTEND_MODE_IFETCH;
   }
 
+#ifdef USING_SST
+  static unordered_map<int, Addr> last_fetched_addr;
+#endif // USING_SST
 
   // -------------------------------------
   // Fetch main loop
@@ -379,7 +413,24 @@ FRONTEND_MODE frontend_c::process_ifetch(unsigned int tid, frontend_s* fetch_dat
     // -------------------------------------
     // instruction cache access
     // -------------------------------------
+#ifdef USING_SST
+    bool icache_miss;
+    // Access instruction cache only for new cache block
+    if (last_fetched_addr[tid] != fetch_addr) {
+      if (KNOB(KNOB_USE_MEMHIERARCHY)->getValue()) {
+        if (KNOB(KNOB_USE_VAULTSIM_LINK)->getValue() && (m_core->get_unit_type() == UNIT_SMALL))
+          icache_miss = access_icache(tid, fetch_addr, fetch_data);
+        else
+          icache_miss = access_memhierarchy_cache(tid, fetch_addr, fetch_data);
+      } else {
+        icache_miss = access_icache(tid, fetch_addr, fetch_data);
+      }
+    } else {
+      icache_miss = false;
+    }
+#else // USING_SST
     bool icache_miss = access_icache(tid, fetch_addr, fetch_data);
+#endif // USING_SST
 
     // instruction cache miss
     if (icache_miss) {
@@ -388,6 +439,10 @@ FRONTEND_MODE frontend_c::process_ifetch(unsigned int tid, frontend_s* fetch_dat
     } 
     // instruction cache hit
     else {
+#ifdef USING_SST 
+      last_fetched_addr[tid] = fetch_addr;
+#endif // USING_SST
+
       POWER_CORE_EVENT(m_core_id, POWER_ICACHE_R);	// FIXME Jieun Apr-9-2012 should be moved to somewhere else, this is not a right place. currently ICACHE_R = #insts, but it should be 1/4
 
       // -------------------------------------
@@ -406,12 +461,12 @@ FRONTEND_MODE frontend_c::process_ifetch(unsigned int tid, frontend_s* fetch_dat
         // read an uop from the traces 
         if (!m_simBase->m_trace_reader->get_uops_from_traces(m_core_id, new_uop, tid, m_knob_ptx_sim)) {
           // couldn't get an uop
-          DEBUG("not success\n");
+          DEBUG_CORE(m_core_id, "not success\n");
           m_uop_pool->release_entry(new_uop->free());
 
           return  FRONTEND_MODE_IFETCH;
         }
-        
+
         new_uop->m_state = OS_FETCHED; 
         new_uop->m_fetched_cycle = m_core->get_cycle_count();
 
@@ -430,9 +485,9 @@ FRONTEND_MODE frontend_c::process_ifetch(unsigned int tid, frontend_s* fetch_dat
         m_core->m_last_fetch_cycle[tid] = m_core->get_cycle_count();
 
         DEBUG_CORE(m_core_id, "cycle_count:%lld m_core_id:%d tid:%d uop_num:%lld  "
-            "inst_num:%lld uop.va:%s iaq:%d mem_type:%d dest:%d num_dests:%d\n",
+            "inst_num:%lld uop.va:0x%llx iaq:%d mem_type:%d dest:%d num_dests:%d\n",
             m_cur_core_cycle, m_core_id, new_uop->m_thread_id,
-            new_uop->m_uop_num, new_uop->m_inst_num, hexstr64s(new_uop->m_vaddr),
+            new_uop->m_uop_num, new_uop->m_inst_num, new_uop->m_vaddr,
             new_uop->m_allocq_num, new_uop->m_mem_type, new_uop->m_dest_info[0],
             new_uop->m_num_dests);
 
@@ -490,8 +545,8 @@ FRONTEND_MODE frontend_c::process_ifetch(unsigned int tid, frontend_s* fetch_dat
           }
           else {
             fetch_data->m_MT_scheduler.m_next_fetch_addr = new_uop->m_npc;
-            DEBUG_CORE(m_core_id, "m_core_id:%d tid:%d MT_scheduler[%d]->0x%s \n",
-                m_core_id, new_uop->m_thread_id, tid, hexstr64s(new_uop->m_npc));
+            DEBUG_CORE(m_core_id, "m_core_id:%d tid:%d MT_scheduler[%d]->0x%llx \n",
+                m_core_id, new_uop->m_thread_id, tid, new_uop->m_npc);
           }
         }
 
@@ -541,7 +596,7 @@ bool frontend_c::access_icache(int tid, Addr fetch_addr, frontend_s* fetch_data)
   // -------------------------------------
   if (*m_simBase->m_knobs->KNOB_PERFECT_ICACHE) {
     cache_miss = CACHE_HIT;
-    DEBUG("PERFECT_ICACHE!!!\n");
+    DEBUG_CORE(m_core_id, "PERFECT_ICACHE!!!\n");
   }
   else {
     int appl_id = m_core->get_appl_id(tid);
@@ -555,17 +610,16 @@ bool frontend_c::access_icache(int tid, Addr fetch_addr, frontend_s* fetch_data)
   // -------------------------------------
   if (!cache_miss) {
     STAT_CORE_EVENT(m_core_id, ICACHE_HIT);
-    DEBUG_CORE(m_core_id, "m_core_id:%d fetch_addr:%s new fetch_addr:%s m_icache hit\n", 
-        m_core_id, hexstr64s(fetch_addr), hexstr64s(new_fetch_addr));
+    DEBUG_CORE(m_core_id, "m_core_id:%d fetch_addr:0x%llx new fetch_addr:0x%llx m_icache hit\n", 
+        m_core_id, fetch_addr, new_fetch_addr);
 
   } 
   // -------------------------------------
   // cache miss 
   // -------------------------------------
   else {
-    DEBUG_CORE(m_core_id, "m_core_id:%d fetch_addr:0x%s m_icache miss line_addr:0x%s "
-        "new_fetch_addr:0x%s\n", m_core_id, hexstr64s(fetch_addr), hexstr64s(line_addr), 
-        hexstr64s(new_fetch_addr));
+    DEBUG_CORE(m_core_id, "m_core_id:%d fetch_addr:0x%llx m_icache miss line_addr:0x%llx "
+        "new_fetch_addr:0x%llx\n", m_core_id, fetch_addr, line_addr, new_fetch_addr);
 
     // send a new icache miss memory request
     int result = m_simBase->m_memory->new_mem_req(MRT_IFETCH, line_addr, 
@@ -601,14 +655,13 @@ bool frontend_c::icache_fill_line(mem_req_s *req)
   if (m_icache->access_cache(req->m_addr, &line_addr, false, req->m_appl_id) == NULL) {
     m_icache->insert_cache(req->m_addr, &line_addr, &repl_line_addr, req->m_appl_id, 
         req->m_ptx);
-    // cout << "Level: " << req->m_level << " Addr: " << hex << req->m_addr << " Line Addr: " << line_addr << " Repl Addr: " << repl_line_addr << endl;
     POWER_CORE_EVENT(req->m_core_id, POWER_ICACHE_W);
   }
 
   STAT_CORE_EVENT(m_core_id, ICACHE_FILL); 
 
-  DEBUG_CORE(m_core_id, "m_icache_fill m_core_id:%d req_addr:0x%s\n", 
-      m_core_id, hexstr64s(req->m_addr)); 
+  DEBUG_CORE(m_core_id, "m_icache_fill m_core_id:%d req_addr:0x%llx\n", 
+      m_core_id, req->m_addr); 
 
 
   // FIXME (jaekyu, 10-4-2011)
@@ -624,12 +677,12 @@ bool frontend_c::icache_fill_line(mem_req_s *req)
     if (fetch_data != NULL && fetch_data->m_fetch_ready_addr == req->m_addr) {
       // fetching from this thread is unblocked. can be fetched
       fetch_data->m_fetch_ready_addr = 0;
-      DEBUG_CORE(m_core_id, "sim_thread:%d is ready now addr:0x%s \n", ii, 
-          hexstr64s(req->m_addr));
+      DEBUG_CORE(m_core_id, "sim_thread:%d is ready now addr:0x%llx \n", ii, 
+          req->m_addr);
     }
     else {
-      DEBUG_CORE(m_core_id, "fetch_ready_addr[%d]:%s is not ready now req:0x%s \n",
-          ii, hexstr64s(fetch_data->m_fetch_ready_addr), hexstr64s(req->m_addr));
+      DEBUG_CORE(m_core_id, "fetch_ready_addr[%d]:%llx is not ready now req:0x%llx \n",
+          ii, fetch_data->m_fetch_ready_addr, req->m_addr);
     }
   }
   return true;
@@ -643,8 +696,8 @@ inline void frontend_c::send_uop_to_qfe(uop_c *uop)
   // FIXME: Jieun 01-13-2012 Write Counter should be just after ICache. 
   // Since one line of ICache has ~4 insts, W Counter is #insts/4
   POWER_CORE_EVENT(m_core_id, POWER_FETCH_QUEUE_W);	
-  DEBUG("m_core_id:%d tid:%d inst_num:%s uop_num:%s opcode:%d isitEOM:%d sent to qfe \n", 
-      m_core_id, uop->m_thread_id, unsstr64(uop->m_inst_num), unsstr64(uop->m_uop_num), 
+  DEBUG_CORE(m_core_id, "m_core_id:%d tid:%d inst_num:%llu uop_num:%llu opcode:%d isitEOM:%d sent to qfe \n", 
+      m_core_id, uop->m_thread_id, uop->m_inst_num, uop->m_uop_num, 
       (int)uop->m_opcode, uop->m_isitEOM);
 
   ASSERT(success);
@@ -712,8 +765,9 @@ int frontend_c::predict_bpu(uop_c *uop)
 
   uop->m_mispredicted = mispredicted;
 
-  DEBUG("m_core_id:%d tid:%d uop_num:%s pc:0x%s cf_type:%d dir:%d pred:%d mispredicted:%d \n", 
-      uop->m_core_id, uop->m_thread_id, unsstr64(uop->m_uop_num), hexstr64s(uop->m_pc), 
+  DEBUG_CORE(m_core_id, "m_core_id:%d tid:%d uop_num:%llu pc:0x%llx "
+      "cf_type:%d dir:%d pred:%d mispredicted:%d \n", 
+      uop->m_core_id, uop->m_thread_id, uop->m_uop_num, uop->m_pc, 
       uop->m_cf_type, uop->m_dir, pred_dir, mispredicted);
 
   return uop->m_mispredicted;
@@ -732,10 +786,10 @@ bool frontend_c::btb_access(uop_c *uop)
 
   uop->m_uop_info.m_btb_miss = btb_miss; 
 
-  DEBUG("m_core_id:%d tid:%d uop_num:%s pc:0x%s cf_type:%d dir:%d oracle_npc:%s pred_targ:%s "
-      "btb_miss:%d \n", 
-      uop->m_core_id, uop->m_thread_id, unsstr64(uop->m_uop_num), hexstr64s(uop->m_pc), 
-      uop->m_cf_type, uop->m_dir, hexstr64s(uop->m_npc), hexstr64s(pred_targ_addr), btb_miss);
+  DEBUG_CORE(m_core_id, "m_core_id:%d tid:%d uop_num:%llu pc:0x%llx "
+      "cf_type:%d dir:%d oracle_npc:0x%llx pred_targ:0x%llx btb_miss:%d \n", 
+      uop->m_core_id, uop->m_thread_id, uop->m_uop_num, uop->m_pc, 
+      uop->m_cf_type, uop->m_dir, uop->m_npc, pred_targ_addr, btb_miss);
 
   // need to set up redirect 
 
@@ -758,7 +812,7 @@ int frontend_c::fetch_rr(void)
   int try_again = 1;
   int fetch_id = -1;
 
-  DEBUG("m_core_id:%d m_running_thread_num:%d m_fetching_thread_num:%d "
+  DEBUG_CORE(m_core_id, "m_core_id:%d m_running_thread_num:%d m_fetching_thread_num:%d "
       "m_unique_scheduled_thread_num:%d \n",m_core_id, m_running_thread_num,
       m_fetching_thread_num, m_unique_scheduled_thread_num);
 
@@ -790,7 +844,7 @@ int frontend_c::fetch_rr(void)
     // fetch blocked, try next thread
     frontend_s* fetch_data = m_core->get_trace_info(fetch_id)->m_fetch_data;
     if (fetch_data!= NULL && fetch_data->m_fetch_blocked) {
-      DEBUG("m_core_id:%d tid:%d fetch_blocked\n", m_core_id, fetch_id);
+      DEBUG_CORE(m_core_id, "m_core_id:%d tid:%d fetch_blocked\n", m_core_id, fetch_id);
       ++try_again;
       continue;
     }
@@ -799,7 +853,7 @@ int frontend_c::fetch_rr(void)
     if (m_knob_ptx_sim) {
       // GPU : stall on branch policy, check whether previous branch has been resolved
       if (*m_simBase->m_knobs->KNOB_MT_NO_FETCH_BR && !check_br_ready(fetch_id)) {
-        DEBUG("m_core_id:%d tid:%d br not ready\n", m_core_id, fetch_id);
+        DEBUG_CORE(m_core_id, "m_core_id:%d tid:%d br not ready\n", m_core_id, fetch_id);
         if (try_again == 1) 
           STAT_EVENT(FETCH_THREAD_SKIP_BR_WAIT);
         ++try_again;
@@ -807,7 +861,7 @@ int frontend_c::fetch_rr(void)
       }
       // GPU : stall on memory policy, check whether previous memory has been serviced
       if (*m_simBase->m_knobs->KNOB_FETCH_ONLY_LOAD_READY && !check_load_ready(fetch_id)) {
-        DEBUG("m_core_id:%d tid:%d load not ready\n", m_core_id, fetch_id);
+        DEBUG_CORE(m_core_id, "m_core_id:%d tid:%d load not ready\n", m_core_id, fetch_id);
         if (try_again == 1) 
           STAT_EVENT(FETCH_THREAD_SKIP_LD_WAIT);
         ++try_again;
@@ -924,3 +978,51 @@ void frontend_c::set_load_wait(int fetch_id, Counter uop_num)
   fetch_data->m_load_waiting[uop_num] = true;
 }
 
+
+#ifdef USING_SST
+bool frontend_c::access_memhierarchy_cache(int tid, Addr fetch_addr, frontend_s* fetch_data)
+{
+  bool cache_miss = CACHE_MISS;
+
+  if (fetch_addr == 0) {
+    return CACHE_HIT;
+  }
+
+  if (KNOB(KNOB_PERFECT_ICACHE)->getValue()) {
+    cache_miss = CACHE_HIT;
+  } else {
+    uint64_t key = UNIQUE_KEY(m_core_id, tid, fetch_addr, 0);
+    DEBUG_CORE(m_core_id, "core_id = %d, thread_id = %d, fetch_data = %p, fetch_addr = 0x%llx, key = %lx\n", 
+        m_core_id, tid, fetch_data, fetch_addr, key);
+
+    // Sending
+    auto i = m_fetch_buffer.find(key);
+    if (m_fetch_buffer.end() == i) { // New Request
+      DEBUG_CORE(m_core_id, "sending memory request (fetch_addr = 0x%llx) to memHierarchy\n", fetch_addr);
+      int line_size = KNOB(KNOB_ICACHE_LARGE_LINE_SIZE)->getValue();
+      Addr line_addr = fetch_addr & ~((uint64_t)line_size-1);
+      (*(m_simBase->sendInstReq))(m_core_id, key, line_addr, line_size);
+
+      DEBUG_CORE(m_core_id, "fetch_data inserted into buffer. fetch_addr = 0x%llx\n", fetch_addr);
+      m_fetch_buffer.insert(std::make_pair(key, false));
+
+      // by setting m_fetch_ready_addr non-zero, fetch will be blocked
+      fetch_data->m_fetch_ready_addr = fetch_addr;  
+      cache_miss = CACHE_MISS;
+    } else {
+      //DEBUG_CORE(m_core_id, "strobing fetch_data = %p\n", i->first);
+      bool responseArrived = i->second;
+      if (responseArrived) {
+        DEBUG_CORE(m_core_id, "response has arrived from memHierarchy! Good to go\n");
+        m_fetch_buffer.erase(i);
+        cache_miss = CACHE_HIT;
+      } else {
+        DEBUG_CORE(m_core_id, "response has not arrived yet! Wait more\n");
+        cache_miss = CACHE_MISS;
+      }
+    }
+  }
+
+  return cache_miss;
+}
+#endif //USING_SST

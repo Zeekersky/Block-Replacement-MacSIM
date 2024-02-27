@@ -482,16 +482,16 @@ void core_c::thread_heartbeat(int tid, bool final)
 
     double cum_khz = (double)m_inst_count / (cur_time - m_sim_start_time) / 1000;
     if (final) {
-      fprintf(m_simBase->g_mystdout, "**Core %d Thread %d Finished:   insts:%-10s  "
-          "cycles:%-10s (%llu)  seconds:%-5s -- %.2f IPC (%.2f IPC) --  N/A  KHz (%.2f KHz) \n",
-          m_core_id, tid, unsstr64(m_inst_count), unsstr64(m_core_cycle_count), m_simBase->m_simulation_cycle,
-          unsstr64(cur_time - m_sim_start_time), cum_ipc, cum_ipc, cum_khz);
+      fprintf(m_simBase->g_mystdout, "**Core %d Thread %d Finished:   insts:%-10llu  "
+          "cycles:%-10llu (%llu)  seconds:%-5llu -- %.2f IPC (%.2f IPC) --  N/A  KHz (%.2f KHz) \n",
+          m_core_id, tid, m_inst_count, m_core_cycle_count, m_simBase->m_simulation_cycle,
+          (Counter)(cur_time - m_sim_start_time), cum_ipc, cum_ipc, cum_khz);
     } 
     else {
-      fprintf(m_simBase->g_mystdout, "** Heartbeat for core[%d]:  Thread:%-6d insts:%-10s  "
-          "cycles:%-10s (%llu) seconds:%-5s -- %-3.2f IPC (%-3.2f IPC) -- %-3.2f KIPS (%-3.2f KIPS)\n",
-          m_core_id, tid, unsstr64(m_inst_count / 100 * 100), unsstr64(m_core_cycle_count), m_simBase->m_simulation_cycle,
-          unsstr64(cur_time - m_sim_start_time), int_ipc, cum_ipc, int_khz, cum_khz);
+      fprintf(m_simBase->g_mystdout, "** Heartbeat for core[%d]:  Thread:%-6d insts:%-10llu  "
+          "cycles:%-10llu (%llu) seconds:%-5llu -- %-3.2f IPC (%-3.2f IPC) -- %-3.2f KIPS (%-3.2f KIPS)\n",
+          m_core_id, tid, m_inst_count / 100 * 100, m_core_cycle_count, m_simBase->m_simulation_cycle,
+          (Counter)(cur_time - m_sim_start_time), int_ipc, cum_ipc, int_khz, cum_khz);
       fflush(m_simBase->g_mystdout);
     }
 
@@ -525,16 +525,16 @@ void core_c::core_heartbeat(bool final)
     double cum_khz = (double)m_inst_count / (cur_time - m_sim_start_time) / 1000;
 
     if (final) {
-      fprintf(m_simBase->g_mystdout, "**Core %d Core_Total  Finished:   insts:%-10s  "
-          "cycles:%-10s (%llu) seconds:%-5s -- %-3.2f IPC (%-3.2f IPC) --  N/A  KHz (%-3.2f KHz)\n",
-          m_core_id,  unsstr64(m_inst_count), unsstr64(m_core_cycle_count), m_simBase->m_simulation_cycle,
-          unsstr64(cur_time - m_sim_start_time), cum_ipc, cum_ipc, cum_khz);
+      fprintf(m_simBase->g_mystdout, "**Core %d Core_Total  Finished:   insts:%-10llu  "
+          "cycles:%-10llu (%llu) seconds:%-5llu -- %-3.2f IPC (%-3.2f IPC) --  N/A  KHz (%-3.2f KHz)\n",
+          m_core_id, m_inst_count, m_core_cycle_count, m_simBase->m_simulation_cycle,
+          (Counter)(cur_time - m_sim_start_time), cum_ipc, cum_ipc, cum_khz);
     } 
     else {
-      fprintf(m_simBase->g_mystdout, "** Heartbeat for core[%d]:        insts:%-10s  "
-          "cycles:%-10s (%llu) seconds:%-5s -- %-3.2f IPC (%-3.2f IPC) -- %-3.2f KIPS (%-3.2f KIPS)\n",
-          m_core_id, unsstr64(m_inst_count / 100 * 100), unsstr64(m_core_cycle_count), m_simBase->m_simulation_cycle,
-          unsstr64(cur_time - m_sim_start_time), int_ipc, cum_ipc, int_khz, cum_khz);
+      fprintf(m_simBase->g_mystdout, "** Heartbeat for core[%d]:        insts:%-10llu  "
+          "cycles:%-10llu (%llu) seconds:%-5llu -- %-3.2f IPC (%-3.2f IPC) -- %-3.2f KIPS (%-3.2f KIPS)\n",
+          m_core_id, m_inst_count / 100 * 100, m_core_cycle_count, m_simBase->m_simulation_cycle,
+          (Counter)(cur_time - m_sim_start_time), int_ipc, cum_ipc, int_khz, cum_khz);
       fflush(m_simBase->g_mystdout);
     }
 
@@ -575,14 +575,15 @@ void core_c::check_forward_progress()
     // print all remaining uop states
     if (*KNOB(KNOB_BUG_DETECTOR_ENABLE)) {
       m_simBase->m_bug_detector->print(m_core_id, m_last_terminated_tid);
+      m_simBase->m_bug_detector->print_fence_info();
     }
 
     m_simBase->m_network->print();
 
     ASSERTM(m_core_cycle_count - m_last_forward_progress <= *KNOB(KNOB_FORWARD_PROGRESS_LIMIT),
-        "core_id:%d core_cycle_count:%s (%llu) last_forward_progress:%s last_tid:%d "
-        "last_inst_count:%s\n", m_core_id, unsstr64(m_core_cycle_count), m_simBase->m_simulation_cycle,
-        unsstr64(m_last_forward_progress), m_last_terminated_tid, unsstr64(m_last_inst_count));
+        "core_id:%d core_cycle_count:%llu (%llu) last_forward_progress:%llu last_tid:%d "
+        "last_inst_count:%llu\n", m_core_id, m_core_cycle_count, m_simBase->m_simulation_cycle,
+        m_last_forward_progress, m_last_terminated_tid, m_last_inst_count);
   }
 }
 
@@ -770,6 +771,9 @@ void core_c::create_trace_info(int tid, thread_s* thread)
   ++m_unique_scheduled_thread_num;
   ++m_running_thread_num;
   ++m_fetching_thread_num;
+
+  // to prevent from unnecessary forward progress error for a newely launched cores 
+  m_last_forward_progress = m_core_cycle_count; 
 }
 
 

@@ -73,6 +73,7 @@ class Topology;
 #define NETWORK m_simBase->m_network
 #define DRAM_CTRL m_simBase->m_dram_controller
 #define MEMORY m_simBase->m_memory
+#define DYFR m_simBase->m_dyfr
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -156,12 +157,33 @@ class macsim_c
      */
 		void deallocate_memory(void);
 
-#ifdef POWER_EI
     /**
-     * Compute power consumption
+     * Change frequency of a core
      */
-		void compute_power(void);
-#endif
+        void change_frequency_core(int id, int freq);
+
+    /**
+     * Change frequency of other units (L3, NoC, MC)
+     * {0:l3, 1:noc, 2:mc}
+     */
+        void change_frequency_uncore(int type, int freq);
+
+    /**
+     * Function to check outstanding requests
+     * to change frequency of units
+     */
+        void apply_new_frequency(void);
+
+    /**
+     * Returns a core's current frequency
+     */
+        int get_current_frequency_core(int core_id);
+
+    /**
+     * Returns a unit current frequency
+     * {0:l3, 1:noc, 2:mc}
+     */
+        int get_current_frequency_uncore(int type);
 
     /**
      * Finialize simulation
@@ -260,14 +282,6 @@ class macsim_c
 		FILE* log_file; /**< log file used by IRIS */
 		stringstream network_trace; /**< network trace */
 #endif
-
-#ifdef POWER_EI
-		// power stats
-		ei_power_c* m_ei_power; /**< energy introspector */
-		double avg_power; /**< average power */
-		double total_energy; /**< total energy consumption */
-		int total_packets; /**< number of packets */
-#endif
     
   public:
     // clock handling
@@ -279,8 +293,12 @@ class macsim_c
     bool* m_termination_check; /**< termination checking logic */
     int m_termination_count;
 
+    dyfr_c* m_dyfr; /**< dynamic frequency class> */
+
 	private:
 		macsim_c* m_simBase; /**< self-reference for macro usage */
+
+    int m_num_sim_cores;
 
     int CLOCK_L3;
     int CLOCK_NOC;
@@ -288,7 +306,52 @@ class macsim_c
     int CLOCK_CPU;
     int CLOCK_GPU;
 
-    int m_num_sim_cores;
+    // dynamic frequency
+    queue<Counter> m_freq_ready;
+    queue<int> m_freq_id;
+    queue<int> m_freq;
+
+    int m_pll_lockout; /**< pll time counter to lock on a frequency */
+
+#ifdef USING_SST
+#include "callback.h"
+  public:
+    CallbackSendInstReq *sendInstReq;
+    CallbackSendDataReq *sendDataReq;
+    CallbackSendCubeReq *sendCubeReq;
+    CallbackStrobeInstRespQ *strobeInstRespQ;
+    CallbackStrobeDataRespQ *strobeDataRespQ;
+    CallbackStrobeCubeRespQ *strobeCubeRespQ;
+
+    void registerCallback(CallbackSendInstReq*, CallbackSendDataReq*, CallbackStrobeInstRespQ*, CallbackStrobeDataRespQ*);
+    void registerCallback(CallbackSendCubeReq*, CallbackStrobeCubeRespQ*);
+
+    void start() { m_started = true; }
+    void halt() { m_started = false; }
+
+  private:
+    bool m_started;
+#endif //USING_SST
+
+  private:
+    // Greatest common divisor
+    inline int gcd(int a, int b) {
+      do {
+        int tmp(b);
+        b = a % b;
+        a = tmp;
+      } while (b != 0);
+
+      return a;
+    }
+
+    // Least common multiple of two integers
+    inline int lcm(const int &a, const int &b) {
+      int ret = a;
+      ret /= gcd(a, b);
+      ret *= b;
+      return ret;
+    }
 };
 
 #endif

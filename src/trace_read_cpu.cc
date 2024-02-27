@@ -65,6 +65,10 @@ POSSIBILITY OF SUCH DAMAGE.
 
 
 #define DEBUG(args...)   _DEBUG(*KNOB(KNOB_DEBUG_TRACE_READ), ## args)
+#define DEBUG_CORE(m_core_id, args...)       \
+  if (m_core_id == *m_simBase->m_knobs->KNOB_DEBUG_CORE_ID) {     \
+    _DEBUG(*m_simBase->m_knobs->KNOB_DEBUG_TRACE_READ, ## args); \
+  }
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -77,9 +81,6 @@ cpu_decoder_c::cpu_decoder_c(macsim_c* simBase, ofstream* m_dprint_output)
   : trace_read_c(simBase, m_dprint_output)
 {
   m_trace_size = CPU_TRACE_SIZE;
-
-  // map opcode type to uop type 
-  init_pin_convert();
 
   // physical page mapping
   m_enable_physical_mapping = *KNOB(KNOB_ENABLE_PHYSICAL_MAPPING);
@@ -508,6 +509,20 @@ inst_info_s* cpu_decoder_c::convert_pinuop_to_t_uop(void *trace_info, trace_uop_
       cur_trace_uop->m_inst_size     = pi->m_size;
     }
 
+    // Fence instruction: m_opcode == MISC && actually_taken == 1
+    if (num_uop == 0 && pi->m_opcode == XED_CATEGORY_MISC && pi->m_ld_vaddr2 == 1) {
+      trace_uop[0]->m_opcode        = pi->m_opcode;
+      trace_uop[0]->m_mem_type      = NOT_MEM;
+      trace_uop[0]->m_cf_type       = NOT_CF;
+      trace_uop[0]->m_op_type       = UOP_FULL_FENCE;
+      trace_uop[0]->m_bar_type      = NOT_BAR;
+      trace_uop[0]->m_num_dest_regs = 0;
+      trace_uop[0]->m_num_src_regs  = 0;
+      trace_uop[0]->m_pin_2nd_mem   = 0;
+      trace_uop[0]->m_eom           = 1;
+      trace_uop[0]->m_inst_size     = pi->m_size;
+      ++num_uop;
+    }
 
     ///
     /// Non-memory, non-branch instruction
@@ -548,11 +563,9 @@ inst_info_s* cpu_decoder_c::convert_pinuop_to_t_uop(void *trace_info, trace_uop_
 
       trace_uop[ii]->m_addr = pi->m_instruction_addr;
 
-      DEBUG("pi->instruction_addr:0x%s trace_uop[%d]->addr:0x%s num_src_regs:%d "
-          "num_read_regs:%d pi:num_dst_regs:%d uop:num_dst_regs:%d \n",
-          hexstr64s(pi->m_instruction_addr), ii, hexstr64s(trace_uop[ii]->m_addr), 
-          trace_uop[ii]->m_num_src_regs, pi->m_num_read_regs, pi->m_num_dest_regs, 
-          trace_uop[ii]->m_num_dest_regs);
+      DEBUG_CORE(core_id, "pi->instruction_addr:0x%llx trace_uop[%d]->addr:0x%llx num_src_regs:%d num_read_regs:%d "
+          "pi:num_dst_regs:%d uop:num_dst_regs:%d \n", (Addr)(pi->m_instruction_addr), ii, trace_uop[ii]->m_addr, 
+          trace_uop[ii]->m_num_src_regs, pi->m_num_read_regs, pi->m_num_dest_regs, trace_uop[ii]->m_num_dest_regs);
 
       // set source register
       for (jj = 0; jj < trace_uop[ii]->m_num_src_regs; ++jj) {
@@ -625,9 +638,8 @@ inst_info_s* cpu_decoder_c::convert_pinuop_to_t_uop(void *trace_info, trace_uop_
       // update instruction information with MacSim trace
       convert_t_uop_to_info(trace_uop[ii], info);
 
-      DEBUG("tuop: pc %s num_src_reg:%d num_dest_reg:%d \n",
-          hexstr64s(trace_uop[ii]->m_addr), trace_uop[ii]->m_num_src_regs, 
-          trace_uop[ii]->m_num_dest_regs);
+      DEBUG_CORE(core_id, "tuop: pc 0x%llx num_src_reg:%d num_dest_reg:%d \n", trace_uop[ii]->m_addr, 
+          trace_uop[ii]->m_num_src_regs, trace_uop[ii]->m_num_dest_regs);
       
       trace_uop[ii]->m_info = info;
 
@@ -799,6 +811,30 @@ inst_info_s* cpu_decoder_c::convert_pinuop_to_t_uop(void *trace_info, trace_uop_
   return first_info;
 }
 
+inst_info_s* cpu_decoder_c::get_inst_info(thread_s *thread_trace_info, int core_id, int sim_thread_id)
+{
+  trace_info_cpu_s trace_info;
+  inst_info_s *info;
+  // Copy current instruction to data structure
+  memcpy(&trace_info, thread_trace_info->m_prev_trace_info, sizeof(trace_info_cpu_s));
+
+  // Set next pc address
+  trace_info_cpu_s *next_trace_info = static_cast<trace_info_cpu_s *>(thread_trace_info->m_next_trace_info);
+  trace_info.m_instruction_next_addr = next_trace_info->m_instruction_addr;
+
+  // Copy next instruction to current instruction field
+  memcpy(thread_trace_info->m_prev_trace_info, thread_trace_info->m_next_trace_info, 
+      sizeof(trace_info_cpu_s));
+
+  DEBUG_CORE(core_id, "trace_read core_id:%d thread_id:%d pc:0x%llx opcode:%d inst_count:%llu\n", core_id, sim_thread_id, 
+      (Addr)(trace_info.m_instruction_addr), static_cast<int>(trace_info.m_opcode), (Counter)(thread_trace_info->m_temp_inst_count));
+
+  // So far we have raw instruction format, so we need to MacSim specific trace format
+  info = convert_pinuop_to_t_uop(&trace_info, thread_trace_info->m_trace_uop_array, 
+      core_id, sim_thread_id);
+
+  return info;
+}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -812,6 +848,12 @@ inst_info_s* cpu_decoder_c::convert_pinuop_to_t_uop(void *trace_info, trace_uop_
  */
 bool cpu_decoder_c::get_uops_from_traces(int core_id, uop_c *uop, int sim_thread_id)
 {
+  // use an alternative uop fetch function, if hmc is enabled  
+  if (*KNOB(KNOB_ENABLE_HMC_INST))
+  {
+    return hmc_function_c::get_uops_from_traces_with_hmc_inst(this, core_id, uop, sim_thread_id);
+  }
+
   ASSERT(uop);
 
   trace_uop_s *trace_uop;
@@ -823,7 +865,9 @@ bool cpu_decoder_c::get_uops_from_traces(int core_id, uop_c *uop, int sim_thread
   if (core->m_fetch_ended[sim_thread_id]) 
     return false;
 
-  trace_info_cpu_s trace_info;
+  // uop number is specific to the core
+  uop->m_unique_num = core->inc_and_get_unique_uop_num();
+
   bool read_success = true;
   thread_s* thread_trace_info = core->get_trace_info(sim_thread_id);
 
@@ -850,22 +894,7 @@ bool cpu_decoder_c::get_uops_from_traces(int core_id, uop_c *uop, int sim_thread
       }
     }
 
-
-    // Copy current instruction to data structure
-    memcpy(&trace_info, thread_trace_info->m_prev_trace_info, sizeof(trace_info_cpu_s));
-
-    // Set next pc address
-    trace_info_cpu_s *next_trace_info = static_cast<trace_info_cpu_s *>(thread_trace_info->m_next_trace_info);
-    trace_info.m_instruction_next_addr = next_trace_info->m_instruction_addr;
-
-    // Copy next instruction to current instruction field
-    memcpy(thread_trace_info->m_prev_trace_info, thread_trace_info->m_next_trace_info, 
-        sizeof(trace_info_cpu_s));
-
-    DEBUG("trace_read nm core_id:%d thread_id:%d pc:%s opcode:%d inst_count:%lu\n",
-        core_id, sim_thread_id, hexstr64s(trace_info.m_instruction_addr), 
-        static_cast<int>(trace_info.m_opcode), thread_trace_info->m_temp_inst_count);
-
+    info = get_inst_info(thread_trace_info, core_id, sim_thread_id);
 
     ///
     /// Trace read failed
@@ -877,17 +906,13 @@ bool cpu_decoder_c::get_uops_from_traces(int core_id, uop_c *uop, int sim_thread
     // read a new instruction, so update stats
     if (inst_read) { 
       ++core->m_inst_fetched[sim_thread_id];
-      DEBUG("core_id:%d thread_id:%d inst_num:%lu\n",
-          core_id, sim_thread_id, thread_trace_info->m_temp_inst_count + 1);
+      DEBUG_CORE(core_id, "core_id:%d thread_id:%d inst_num:%llu\n", core_id, sim_thread_id, 
+          (Counter)(thread_trace_info->m_temp_inst_count + 1));
 
       if (core->m_inst_fetched[sim_thread_id] > core->m_max_inst_fetched) 
         core->m_max_inst_fetched = core->m_inst_fetched[sim_thread_id];
     }
 
-
-    // So far we have raw instruction format, so we need to MacSim specific trace format
-    info = convert_pinuop_to_t_uop(&trace_info, thread_trace_info->m_trace_uop_array, 
-        core_id, sim_thread_id);
 
 
     trace_uop = thread_trace_info->m_trace_uop_array[0];
@@ -929,9 +954,8 @@ bool cpu_decoder_c::get_uops_from_traces(int core_id, uop_c *uop, int sim_thread
     --core->m_fetching_thread_num;
     core->m_fetch_ended[sim_thread_id] = true;
     uop->m_last_uop                    = true;
-    DEBUG("core_id:%d thread_id:%d inst_num:%lld uop_num:%lld fetched:%lld last uop\n",
-        core_id, sim_thread_id, uop->m_inst_num, uop->m_uop_num, 
-        core->m_inst_fetched[sim_thread_id]);
+    DEBUG_CORE(core_id, "core_id:%d thread_id:%d inst_num:%lld uop_num:%lld fetched:%lld last uop\n",
+        core_id, sim_thread_id, uop->m_inst_num, uop->m_uop_num, core->m_inst_fetched[sim_thread_id]);
   }
 
 
@@ -976,6 +1000,10 @@ bool cpu_decoder_c::get_uops_from_traces(int core_id, uop_c *uop, int sim_thread
 
 
   uop->m_mem_size = trace_uop->m_mem_size;
+  uop->m_dir      = trace_uop->m_actual_taken;
+  uop->m_pc       = info->m_addr;
+  uop->m_core_id  = core_id;
+
   if (uop->m_mem_type != NOT_MEM) {
     int temp_num_req = (uop->m_mem_size + *KNOB(KNOB_MAX_TRANSACTION_SIZE) - 1) / 
       *KNOB(KNOB_MAX_TRANSACTION_SIZE);
@@ -985,11 +1013,6 @@ bool cpu_decoder_c::get_uops_from_traces(int core_id, uop_c *uop, int sim_thread
         (int)*KNOB(KNOB_MAX_TRANSACTION_SIZE), temp_num_req, uop->m_mem_type, 
         trace_uop->m_info->m_trace_info.m_num_uop);
   }
-
-  uop->m_dir     = trace_uop->m_actual_taken;
-  uop->m_pc      = info->m_addr;
-  uop->m_core_id = core_id;
-
 
   // we found first uop of an instruction, so add instruction count
   if (uop->m_isitBOM) 
@@ -1002,14 +1025,9 @@ bool cpu_decoder_c::get_uops_from_traces(int core_id, uop_c *uop, int sim_thread
   ASSERTM(uop->m_num_dests < MAX_DST_NUM, "uop->num_dests=%d MAX_DST_NUM=%d\n", 
       uop->m_num_dests, MAX_DST_NUM);
 
-
-  // uop number is specific to the core
-  uop->m_unique_num = core->inc_and_get_unique_uop_num();
-
-  DEBUG("uop_num:%lld num_srcs:%d  trace_uop->num_src_regs:%d  num_dsts:%d num_seing_uop:%d "
-      "pc:0x%s dir:%d \n",
-      uop->m_uop_num, uop->m_num_srcs, trace_uop->m_num_src_regs, uop->m_num_dests, 
-      thread_trace_info->m_num_sending_uop, hexstr64s(uop->m_pc), uop->m_dir);
+  DEBUG_CORE(uop->m_core_id, "uop_num:%llu num_srcs:%d  trace_uop->num_src_regs:%d  num_dsts:%d num_seing_uop:%d "
+      "pc:0x%llx dir:%d \n", uop->m_uop_num, uop->m_num_srcs, trace_uop->m_num_src_regs, uop->m_num_dests, 
+      thread_trace_info->m_num_sending_uop, uop->m_pc, uop->m_dir);
 
   // filling the src_info, dest_info
   if (uop->m_num_srcs < MAX_SRCS) {
@@ -1042,7 +1060,7 @@ bool cpu_decoder_c::get_uops_from_traces(int core_id, uop_c *uop, int sim_thread
   /// removed
   ///
 
-  DEBUG("new uop: uop_num:%lld inst_num:%lld thread_id:%d unique_num:%lld \n",
+  DEBUG_CORE(uop->m_core_id, "new uop: uop_num:%lld inst_num:%lld thread_id:%d unique_num:%lld \n",
       uop->m_uop_num, uop->m_inst_num, uop->m_thread_id, uop->m_unique_num);
 
   return read_success;

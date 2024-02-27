@@ -2,21 +2,21 @@
 Interval
 ####################################################################################################
 Cumulative:         Cycles:                  20000     Instructions:                  1200
-DRAM_PRECHARGE                                               7146                          7146
+DRAM_PRECHARGE                                              12277                         12277
 
-DRAM_ACTIVATE                                                7154                          7154
+DRAM_ACTIVATE                                               12285                         12285
 
-DRAM_COLUMN                                                 13346                         13346
+DRAM_COLUMN                                                 95302                         95302
 
-DRAM_AVG_LATENCY_BASE                                       13346                         13346
+DRAM_AVG_LATENCY_BASE                                       95302                         95302
 
-DRAM_AVG_LATENCY                                           591611                       44.3287
+DRAM_AVG_LATENCY                                          9456431                       99.2259
 
-BANDWIDTH_TOT                                              854144                        854144
+BANDWIDTH_TOT                                             6099328                       6099328
 
-DRAM_CHANNEL0_BANDWIDTH_SATURATED                             652                           652
+DRAM_CHANNEL0_BANDWIDTH_SATURATED                            7093                          7093
 
-DRAM_CHANNEL1_BANDWIDTH_SATURATED                             533                           533
+DRAM_CHANNEL1_BANDWIDTH_SATURATED                            6923                          6923
 
 DRAM_CHANNEL2_BANDWIDTH_SATURATED                               0                             0
 
@@ -30,9 +30,9 @@ DRAM_CHANNEL6_BANDWIDTH_SATURATED                               0               
 
 DRAM_CHANNEL7_BANDWIDTH_SATURATED                               0                             0
 
-DRAM_CHANNEL0_DBUS_IDLE                                   4844723                       4844723
+DRAM_CHANNEL0_DBUS_IDLE                                   5359573                       5359573
 
-DRAM_CHANNEL1_DBUS_IDLE                                   4847619                       4847619
+DRAM_CHANNEL1_DBUS_IDLE                                   5358789                       5358789
 
 DRAM_CHANNEL2_DBUS_IDLE                                         0                             0
 

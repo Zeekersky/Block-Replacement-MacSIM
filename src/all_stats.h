@@ -45,6 +45,7 @@ class all_stats_c {
 		COUNT_Stat* m_SCHED_FAILED_REASON_SUCCESS;
 		COUNT_Stat* m_SCHED_FAILED_OPERANDS_NOT_READY;
 		COUNT_Stat* m_SCHED_FAILED_NO_PORTS;
+		COUNT_Stat* m_SCHED_FAILED_FENCE_ACTIVE;
 		COUNT_Stat* m_NUM_SAMPLES;
 		RATIO_Stat* m_NUM_ACTIVE_BLOCKS;
 		RATIO_Stat* m_NUM_ACTIVE_THREADS;
@@ -64,6 +65,11 @@ class all_stats_c {
 		COUNT_Stat* m_CORE_NUM_RETIRE_CYCLES;
 		RATIO_Stat* m_CORE_RETIRE_DELTA;
 		COUNT_Stat* m_AVG_CORE_IDLE_CYCLE;
+		COUNT_Stat* m_FENCE_PREF_REQ;
+		COUNT_Stat* m_FENCE_WAITING;
+		COUNT_Stat* m_DYN_FENCE_NUM;
+		COUNT_Stat* m_WB_ORDERING_STALL;
+		COUNT_Stat* m_WB_FULL;
 		
 		// ============= ../def/core_trace.stat.def =============
 		
@@ -90,6 +96,8 @@ class all_stats_c {
 		COUNT_Stat* m_DRAM_CHANNEL5_DBUS_IDLE;
 		COUNT_Stat* m_DRAM_CHANNEL6_DBUS_IDLE;
 		COUNT_Stat* m_DRAM_CHANNEL7_DBUS_IDLE;
+		
+		// ============= ../def/dyfr.stat.def =============
 		
 		// ============= ../def/general.stat.def =============
 		COUNT_Stat* m_INST_COUNT_TOT;
@@ -129,6 +137,10 @@ class all_stats_c {
 		RATIO_Stat* m_CPI_DELTA4;
 		COUNT_Stat* m_CYCLE_CPU;
 		COUNT_Stat* m_CYCLE_GPU;
+		
+		// ============= ../def/hmc.stat.def =============
+		COUNT_Stat* m_HMC_INST_COUNT;
+		COUNT_Stat* m_HMC_UOP_COUNT;
 		
 		// ============= ../def/inst.stat.def =============
 		DIST_Stat* m_DIST_OP_CAT_XED_CATEGORY_INVALID;
@@ -250,6 +262,8 @@ class all_stats_c {
 		COUNT_Stat* m_OP_CAT_GPU_MAD24;
 		COUNT_Stat* m_OP_CAT_GPU_MAD;
 		COUNT_Stat* m_OP_CAT_GPU_MAD64;
+		COUNT_Stat* m_OP_CAT_GPU_MADC;
+		COUNT_Stat* m_OP_CAT_GPU_MADC64;
 		COUNT_Stat* m_OP_CAT_GPU_MAX;
 		COUNT_Stat* m_OP_CAT_GPU_MAX64;
 		COUNT_Stat* m_OP_CAT_GPU_MEMBAR_CTA;
@@ -293,6 +307,8 @@ class all_stats_c {
 		COUNT_Stat* m_OP_CAT_GPU_SET64;
 		COUNT_Stat* m_OP_CAT_GPU_SETP;
 		COUNT_Stat* m_OP_CAT_GPU_SETP64;
+		COUNT_Stat* m_OP_CAT_GPU_SHFL;
+		COUNT_Stat* m_OP_CAT_GPU_SHFL64;
 		COUNT_Stat* m_OP_CAT_GPU_SHL;
 		COUNT_Stat* m_OP_CAT_GPU_SHL64;
 		COUNT_Stat* m_OP_CAT_GPU_SHR;

@@ -2,49 +2,49 @@
 Interval
 ####################################################################################################
 Cumulative:         Cycles:                  20000     Instructions:                  1200
-AVG_MEMORY_LATENCY_BASE                                    103622                        103622
+AVG_MEMORY_LATENCY_BASE                                    406003                        406003
 
-AVG_MEMORY_LATENCY                                        4436997                       42.8191
+AVG_MEMORY_LATENCY                                       53848089                        132.63
 
 MSHR_FULL                                                       0                             0
 
-TOTAL_MEMORY                                                99541                         99541
+TOTAL_MEMORY                                               387672                        387672
 
-TOTAL_MEMORY_MERGE                                          45688                      0.458987
+TOTAL_MEMORY_MERGE                                         273612                      0.705782
 
-TOTAL_WB                                                     4081                     0.0409982
+TOTAL_WB                                                    18331                     0.0472848
 
-L1_WB                                                        2881                      0.705954
+L1_WB                                                        9917                      0.540996
 
-L2_WB                                                         895                      0.219309
+L2_WB                                                        6065                       0.33086
 
-L3_WB                                                         305                     0.0747366
+L3_WB                                                        2349                      0.128144
 
-TOTAL_DRAM                                                  13346                         13346
+TOTAL_DRAM                                                  95302                         95302
 
 TOTAL_DRAM_MERGE                                                0                             0
 
-L1_HIT_CPU                                                2320211                       2320211
+L1_HIT_CPU                                                1872487                       1872487
 
 L1_HIT_GPU                                                      0                             0
 
-L1_MISS_CPU                                                 99478                         99478
+L1_MISS_CPU                                                375272                        375272
 
 L1_MISS_GPU                                                     0                             0
 
-L2_HIT_CPU                                                  31417                         31417
+L2_HIT_CPU                                                  18129                         18129
 
 L2_HIT_GPU                                                      0                             0
 
-L2_MISS_CPU                                                 22955                         22955
+L2_MISS_CPU                                                 96056                         96056
 
 L2_MISS_GPU                                                     0                             0
 
-L3_HIT_CPU                                                   9914                          9914
+L3_HIT_CPU                                                   3103                          3103
 
 L3_HIT_GPU                                                      0                             0
 
-L3_MISS_CPU                                                 13041                         13041
+L3_MISS_CPU                                                 92953                         92953
 
 L3_MISS_GPU                                                     0                             0
 
@@ -82,9 +82,9 @@ SHARED_MEM_INST                                                 0               
 
 SHARED_MEM_ACCESS                                               0                             0
 
-CACHE_BANK_BUSY                                              1827                          1827
+CACHE_BANK_BUSY                                             33213                         33213
 
-ICACHE_MISS_TOTAL                                              63                            63
+ICACHE_MISS_TOTAL                                           12400                         12400
 
 TOTAL_CAGE_PERIOD                                               0                             0
 
@@ -141,21 +141,21 @@ TM_COAL_INST_MUL_TRANS                                          0               
 DM_COAL_INST_MUL_TRANS                                          0                          NaN 
                                                                 0                           100%
 
-LD_NO_FORWARD                                             1677705                        90.648%
-FORWARDED_LD                                               173086                         9.352%
-                                                          1850791                           100%
+LD_NO_FORWARD                                             1043336                       83.3329%
+FORWARDED_LD                                               208674                       16.6671%
+                                                          1252010                           100%
 
 MEM_STALL_CYCLE_CORE_0                                          0                             0
 
-ICACHE_FILL_CORE_0                                             63                            63
+ICACHE_FILL_CORE_0                                          12400                         12400
 
 NUM_WRITE_ACKS_CORE_0                                           0                             0
 
 NUM_WRITES_CORE_0                                               0                             0
 
-ICACHE_HIT_CORE_0                                         1686764                       99.9963%
-ICACHE_MISS_CORE_0                                             63                    0.00373482%
-                                                          1686827                           100%
+ICACHE_HIT_CORE_0                                         1646256                       99.2524%
+ICACHE_MISS_CORE_0                                          12400                      0.747593%
+                                                          1658656                           100%
 
 MEM_STALL_CYCLE_CORE_1                                          0                             0
 

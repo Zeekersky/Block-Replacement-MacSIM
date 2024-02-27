@@ -2,9 +2,9 @@
 Interval
 ####################################################################################################
 Cumulative:         Cycles:                  20000     Instructions:                  1200
-FP_OPS_TOT                                                      0                             0
+FP_OPS_TOT                                                   2330                          2330
 
-FP_OPS_CORE_0                                                   0                             0
+FP_OPS_CORE_0                                                2330                          2330
 
 OP_CAT_XED_CATEGORY_INVALID_CORE_0                              0                             0%
 OP_CAT_XED_CATEGORY_3DNOW_CORE_0                                0                             0%
@@ -13,16 +13,16 @@ OP_CAT_XED_CATEGORY_AVX_CORE_0                                  0               
 OP_CAT_XED_CATEGORY_AVX2_CORE_0                                 0                             0%
 OP_CAT_XED_CATEGORY_AVX2GATHER_CORE_0                           0                             0%
 OP_CAT_XED_CATEGORY_BDW_CORE_0                                  0                             0%
-OP_CAT_XED_CATEGORY_BINARY_CORE_0                         1147320                       22.9692%
-OP_CAT_XED_CATEGORY_BITBYTE_CORE_0                          26603                      0.532589%
+OP_CAT_XED_CATEGORY_BINARY_CORE_0                          967329                       19.3651%
+OP_CAT_XED_CATEGORY_BITBYTE_CORE_0                          11672                      0.233663%
 OP_CAT_XED_CATEGORY_BMI1_CORE_0                                 0                             0%
 OP_CAT_XED_CATEGORY_BMI2_CORE_0                                 0                             0%
 OP_CAT_XED_CATEGORY_BROADCAST_CORE_0                            0                             0%
-OP_CAT_XED_CATEGORY_CALL_CORE_0                             51684                       1.03471%
-OP_CAT_XED_CATEGORY_CMOV_CORE_0                             18104                       0.36244%
-OP_CAT_XED_CATEGORY_COND_BR_CORE_0                         723734                       14.4891%
-OP_CAT_XED_CATEGORY_CONVERT_CORE_0                           3631                     0.0726922%
-OP_CAT_XED_CATEGORY_DATAXFER_CORE_0                       1900063                        38.039%
+OP_CAT_XED_CATEGORY_CALL_CORE_0                             79724                       1.59601%
+OP_CAT_XED_CATEGORY_CMOV_CORE_0                             10844                      0.217087%
+OP_CAT_XED_CATEGORY_COND_BR_CORE_0                         705847                       14.1304%
+OP_CAT_XED_CATEGORY_CONVERT_CORE_0                             55                    0.00110105%
+OP_CAT_XED_CATEGORY_DATAXFER_CORE_0                       2003905                       40.1164%
 OP_CAT_XED_CATEGORY_DECIMAL_CORE_0                              0                             0%
 OP_CAT_XED_CATEGORY_FCMOV_CORE_0                                0                             0%
 OP_CAT_XED_CATEGORY_FLAGOP_CORE_0                               0                             0%
@@ -30,43 +30,43 @@ OP_CAT_XED_CATEGORY_FMA4_CORE_0                                 0               
 OP_CAT_XED_CATEGORY_INTERRUPT_CORE_0                            0                             0%
 OP_CAT_XED_CATEGORY_IO_CORE_0                                   0                             0%
 OP_CAT_XED_CATEGORY_IOSTRINGOP_CORE_0                           0                             0%
-OP_CAT_XED_CATEGORY_LOGICAL_CORE_0                          88093                       1.76361%
+OP_CAT_XED_CATEGORY_LOGICAL_CORE_0                         416543                       8.33883%
 OP_CAT_XED_CATEGORY_LZCNT_CORE_0                                0                             0%
-OP_CAT_XED_CATEGORY_MISC_CORE_0                            743703                       14.8889%
+OP_CAT_XED_CATEGORY_MISC_CORE_0                            259449                       5.19394%
 OP_CAT_XED_CATEGORY_MMX_CORE_0                                  0                             0%
 OP_CAT_XED_CATEGORY_NOP_CORE_0                                  0                             0%
 OP_CAT_XED_CATEGORY_PCLMULQDQ_CORE_0                            0                             0%
-OP_CAT_XED_CATEGORY_POP_CORE_0                              51682                       1.03467%
+OP_CAT_XED_CATEGORY_POP_CORE_0                              94194                       1.88568%
 OP_CAT_XED_CATEGORY_PREFETCH_CORE_0                             0                             0%
-OP_CAT_XED_CATEGORY_PUSH_CORE_0                             51684                       1.03471%
+OP_CAT_XED_CATEGORY_PUSH_CORE_0                            101069                       2.02331%
 OP_CAT_XED_CATEGORY_RDRAND_CORE_0                               0                             0%
 OP_CAT_XED_CATEGORY_RDSEED_CORE_0                               0                             0%
 OP_CAT_XED_CATEGORY_RDWRFSGS_CORE_0                             0                             0%
-OP_CAT_XED_CATEGORY_RET_CORE_0                              52601                       1.05307%
-OP_CAT_XED_CATEGORY_ROTATE_CORE_0                               0                             0%
+OP_CAT_XED_CATEGORY_RET_CORE_0                              80671                       1.61496%
+OP_CAT_XED_CATEGORY_ROTATE_CORE_0                             298                     0.0059657%
 OP_CAT_XED_CATEGORY_SEGOP_CORE_0                                0                             0%
-OP_CAT_XED_CATEGORY_SEMAPHORE_CORE_0                        17228                      0.344903%
-OP_CAT_XED_CATEGORY_SHIFT_CORE_0                            23158                      0.463621%
-OP_CAT_XED_CATEGORY_SSE_CORE_0                                  0                             0%
-OP_CAT_XED_CATEGORY_STRINGOP_CORE_0                             0                             0%
+OP_CAT_XED_CATEGORY_SEMAPHORE_CORE_0                        24207                      0.484603%
+OP_CAT_XED_CATEGORY_SHIFT_CORE_0                           127838                       2.55921%
+OP_CAT_XED_CATEGORY_SSE_CORE_0                               3252                     0.0651022%
+OP_CAT_XED_CATEGORY_STRINGOP_CORE_0                          2630                     0.0526503%
 OP_CAT_XED_CATEGORY_STTNI_CORE_0                                0                             0%
-OP_CAT_XED_CATEGORY_SYSCALL_CORE_0                            919                     0.0183983%
+OP_CAT_XED_CATEGORY_SYSCALL_CORE_0                           1187                     0.0237627%
 OP_CAT_XED_CATEGORY_SYSRET_CORE_0                               0                             0%
-OP_CAT_XED_CATEGORY_SYSTEM_CORE_0                               0                             0%
+OP_CAT_XED_CATEGORY_SYSTEM_CORE_0                              19                   0.000380364%
 OP_CAT_XED_CATEGORY_TBM_CORE_0                                  0                             0%
-OP_CAT_XED_CATEGORY_UNCOND_BR_CORE_0                        90515                        1.8121%
+OP_CAT_XED_CATEGORY_UNCOND_BR_CORE_0                        89860                       1.79892%
 OP_CAT_XED_CATEGORY_VFMA_CORE_0                                 0                             0%
 OP_CAT_XED_CATEGORY_VTX_CORE_0                                  0                             0%
 OP_CAT_XED_CATEGORY_WIDENOP_CORE_0                              0                             0%
 OP_CAT_XED_CATEGORY_X87_ALU_CORE_0                              0                             0%
 OP_CAT_XED_CATEGORY_XOP_CORE_0                                  0                             0%
-OP_CAT_XED_CATEGORY_XSAVE_CORE_0                                0                             0%
+OP_CAT_XED_CATEGORY_XSAVE_CORE_0                                2                   4.00383e-05%
 OP_CAT_XED_CATEGORY_XSAVEOPT_CORE_0                             0                             0%
-OP_CAT_TR_MUL_CORE_0                                         1838                     0.0367966%
-OP_CAT_TR_DIV_CORE_0                                            0                             0%
-OP_CAT_TR_FMUL_CORE_0                                           0                             0%
-OP_CAT_TR_FDIV_CORE_0                                           0                             0%
-OP_CAT_TR_NOP_CORE_0                                         2473                     0.0495092%
+OP_CAT_TR_MUL_CORE_0                                         3576                     0.0715884%
+OP_CAT_TR_DIV_CORE_0                                         2476                     0.0495674%
+OP_CAT_TR_FMUL_CORE_0                                          10                   0.000200191%
+OP_CAT_TR_FDIV_CORE_0                                           2                   4.00383e-05%
+OP_CAT_TR_NOP_CORE_0                                         8562                      0.171404%
 OP_CAT_PREFETCH_NTA_CORE_0                                      0                             0%
 OP_CAT_PREFETCH_T0_CORE_0                                       0                             0%
 OP_CAT_PREFETCH_T1_CORE_0                                       0                             0%
@@ -124,6 +124,8 @@ OP_CAT_GPU_LG2_CORE_0                                           0               
 OP_CAT_GPU_MAD24_CORE_0                                         0                             0%
 OP_CAT_GPU_MAD_CORE_0                                           0                             0%
 OP_CAT_GPU_MAD64_CORE_0                                         0                             0%
+OP_CAT_GPU_MADC_CORE_0                                          0                             0%
+OP_CAT_GPU_MADC64_CORE_0                                        0                             0%
 OP_CAT_GPU_MAX_CORE_0                                           0                             0%
 OP_CAT_GPU_MAX64_CORE_0                                         0                             0%
 OP_CAT_GPU_MEMBAR_CTA_CORE_0                                    0                             0%
@@ -167,6 +169,8 @@ OP_CAT_GPU_SET_CORE_0                                           0               
 OP_CAT_GPU_SET64_CORE_0                                         0                             0%
 OP_CAT_GPU_SETP_CORE_0                                          0                             0%
 OP_CAT_GPU_SETP64_CORE_0                                        0                             0%
+OP_CAT_GPU_SHFL_CORE_0                                          0                             0%
+OP_CAT_GPU_SHFL64_CORE_0                                        0                             0%
 OP_CAT_GPU_SHL_CORE_0                                           0                             0%
 OP_CAT_GPU_SHL64_CORE_0                                         0                             0%
 OP_CAT_GPU_SHR_CORE_0                                           0                             0%
@@ -221,7 +225,7 @@ OP_CAT_GPU_MEM_ST_SM_CORE_0                                     0               
 OP_CAT_GPU_DATA_XFER_GM_CORE_0                                  0                             0%
 OP_CAT_GPU_DATA_XFER_LM_CORE_0                                  0                             0%
 OP_CAT_GPU_DATA_XFER_SM_CORE_0                                  0                             0%
-                                                          4995033                           100%
+                                                          4995221                           100%
 
 FP_OPS_CORE_1                                                   0                             0
 
@@ -343,6 +347,8 @@ OP_CAT_GPU_LG2_CORE_1                                           0               
 OP_CAT_GPU_MAD24_CORE_1                                         0                          NaN 
 OP_CAT_GPU_MAD_CORE_1                                           0                          NaN 
 OP_CAT_GPU_MAD64_CORE_1                                         0                          NaN 
+OP_CAT_GPU_MADC_CORE_1                                          0                          NaN 
+OP_CAT_GPU_MADC64_CORE_1                                        0                          NaN 
 OP_CAT_GPU_MAX_CORE_1                                           0                          NaN 
 OP_CAT_GPU_MAX64_CORE_1                                         0                          NaN 
 OP_CAT_GPU_MEMBAR_CTA_CORE_1                                    0                          NaN 
@@ -386,6 +392,8 @@ OP_CAT_GPU_SET_CORE_1                                           0               
 OP_CAT_GPU_SET64_CORE_1                                         0                          NaN 
 OP_CAT_GPU_SETP_CORE_1                                          0                          NaN 
 OP_CAT_GPU_SETP64_CORE_1                                        0                          NaN 
+OP_CAT_GPU_SHFL_CORE_1                                          0                          NaN 
+OP_CAT_GPU_SHFL64_CORE_1                                        0                          NaN 
 OP_CAT_GPU_SHL_CORE_1                                           0                          NaN 
 OP_CAT_GPU_SHL64_CORE_1                                         0                          NaN 
 OP_CAT_GPU_SHR_CORE_1                                           0                          NaN 
@@ -562,6 +570,8 @@ OP_CAT_GPU_LG2_CORE_2                                           0               
 OP_CAT_GPU_MAD24_CORE_2                                         0                          NaN 
 OP_CAT_GPU_MAD_CORE_2                                           0                          NaN 
 OP_CAT_GPU_MAD64_CORE_2                                         0                          NaN 
+OP_CAT_GPU_MADC_CORE_2                                          0                          NaN 
+OP_CAT_GPU_MADC64_CORE_2                                        0                          NaN 
 OP_CAT_GPU_MAX_CORE_2                                           0                          NaN 
 OP_CAT_GPU_MAX64_CORE_2                                         0                          NaN 
 OP_CAT_GPU_MEMBAR_CTA_CORE_2                                    0                          NaN 
@@ -605,6 +615,8 @@ OP_CAT_GPU_SET_CORE_2                                           0               
 OP_CAT_GPU_SET64_CORE_2                                         0                          NaN 
 OP_CAT_GPU_SETP_CORE_2                                          0                          NaN 
 OP_CAT_GPU_SETP64_CORE_2                                        0                          NaN 
+OP_CAT_GPU_SHFL_CORE_2                                          0                          NaN 
+OP_CAT_GPU_SHFL64_CORE_2                                        0                          NaN 
 OP_CAT_GPU_SHL_CORE_2                                           0                          NaN 
 OP_CAT_GPU_SHL64_CORE_2                                         0                          NaN 
 OP_CAT_GPU_SHR_CORE_2                                           0                          NaN 
@@ -781,6 +793,8 @@ OP_CAT_GPU_LG2_CORE_3                                           0               
 OP_CAT_GPU_MAD24_CORE_3                                         0                          NaN 
 OP_CAT_GPU_MAD_CORE_3                                           0                          NaN 
 OP_CAT_GPU_MAD64_CORE_3                                         0                          NaN 
+OP_CAT_GPU_MADC_CORE_3                                          0                          NaN 
+OP_CAT_GPU_MADC64_CORE_3                                        0                          NaN 
 OP_CAT_GPU_MAX_CORE_3                                           0                          NaN 
 OP_CAT_GPU_MAX64_CORE_3                                         0                          NaN 
 OP_CAT_GPU_MEMBAR_CTA_CORE_3                                    0                          NaN 
@@ -824,6 +838,8 @@ OP_CAT_GPU_SET_CORE_3                                           0               
 OP_CAT_GPU_SET64_CORE_3                                         0                          NaN 
 OP_CAT_GPU_SETP_CORE_3                                          0                          NaN 
 OP_CAT_GPU_SETP64_CORE_3                                        0                          NaN 
+OP_CAT_GPU_SHFL_CORE_3                                          0                          NaN 
+OP_CAT_GPU_SHFL64_CORE_3                                        0                          NaN 
 OP_CAT_GPU_SHL_CORE_3                                           0                          NaN 
 OP_CAT_GPU_SHL64_CORE_3                                         0                          NaN 
 OP_CAT_GPU_SHR_CORE_3                                           0                          NaN 

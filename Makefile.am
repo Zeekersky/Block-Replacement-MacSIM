@@ -14,7 +14,9 @@ AM_CPPFLAGS = \
   -I$(srcdir)/src/manifold/kernel/include/kernel \
 	-I$(srcdir)/src/orion \
   -std=c++0x \
-	-DUSING_SST 
+	-DUSING_SST \
+	$(HMC_FLAG) \
+	-g
 
 
 SUBDIRS = scripts
@@ -22,7 +24,10 @@ SUBDIRS = scripts
 compdir = $(pkglibdir)
 comp_LTLIBRARIES = libmacsimComponent.la
 libmacsimComponent_la_SOURCES =                                        \
+macsimEvent.h          																								 \
 macsimComponent.cpp          macsimComponent.h                         \
+libmacsimComponent.cc                                                  \
+src/dram_sst_vaultsim.cc     src/dram_sst_vaultsim.h                   \
                                                                        \
 src/all_knobs.cc             src/all_knobs.h                           \
 src/allocate.cc              src/allocate.h                            \
@@ -40,6 +45,7 @@ src/debug_macros.h                                                     \
 src/dram.cc                  src/dram.h                                \
 src/dram_ctrl.cc             src/dram_ctrl.h                           \
 src/dram_dramsim.cc          src/dram_dramsim.h                        \
+src/dyfr.cc									 src/dyfr.h																 \
 src/exec.cc                  src/exec.h                                \
 src/factory_class.cc         src/factory_class.h                       \
 src/fetch_factory.cc         src/fetch_factory.h                       \
@@ -53,7 +59,6 @@ src/main.cc                                                            \
 src/map.cc                   src/map.h                                 \
 src/memory.cc                src/memory.h                              \
 src/memreq_info.cc           src/memreq_info.h                         \
-src/noc.cc                   src/noc.h                                 \
 src/port.cc                  src/port.h                                \
 src/pqueue.h                                                           \
 src/pref.cc                  src/pref.h                                \
@@ -75,6 +80,7 @@ src/sw_managed_cache.cc      src/sw_managed_cache.h                    \
 src/trace_read.cc            src/trace_read.h                          \
 src/trace_read_cpu.cc        src/trace_read_cpu.h                      \
 src/trace_read_gpu.cc        src/trace_read_gpu.h                      \
+src/trace_read_a64.cc        src/trace_read_a64.h                      \
 src/uop.cc                   src/uop.h                                 \
 src/utils.cc                 src/utils.h                               \
 src/network.cc               src/network.h                             \
@@ -87,7 +93,8 @@ src/allocate_interface.h                                               \
 src/exec_interface.h                                                   \
 src/frontend_interface.h                                               \
 src/retire_interface.h                                                 \
-src/schedule_interface.h                                               
+src/schedule_interface.h                                              \
+src/hmc_process.cc 			 src/hmc_process.h
 
 
 EXTRA_DIST = 

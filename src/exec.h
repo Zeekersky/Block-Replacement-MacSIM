@@ -44,6 +44,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "global_defs.h"
 #include "global_types.h"
 #include "uop.h"
+#include "bug_detector.h"
 
 
 #define EXEC_INTERFACE_PARAMS() \
@@ -137,6 +138,12 @@ class exec_c
      */
     bool port_available(int iaq);
 
+    /*! \fn insert_fence_pref (uop_c *uop)
+     * \insert prefetch requets during fence waiting time
+     * \return void
+     */
+    void insert_fence_pref(uop_c *uop);
+
     /*! \fn bool exec(int thread_id, int entry, uop_c* cur_uop)
      *  \brief Function to run the exec stage
      *  \param thread_id - Thread id
@@ -209,6 +216,11 @@ class exec_c
     bool*    m_bank_busy; /**< indicate dcache bank busy */
     
     macsim_c* m_simBase;         /**< macsim_c base class for simulation globals */
+
+#ifdef USING_SST
+    std::map<uint64_t, uop_c*> m_uop_buffer;
+    int access_memhierarchy_cache(uop_c* uop);
+#endif //USING_SST
 };
 
 #endif // EXEC_H_INCLUDED

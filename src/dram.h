@@ -57,7 +57,7 @@ class dram_c
     /**
      * Destructor
      */
-    ~dram_c();
+    virtual ~dram_c() = 0;
 
     /**
      * Print all requests in the DRAM request buffer
@@ -98,6 +98,10 @@ class dram_c
 // wrapper function to allocate a dram scheduler
 dram_c* fcfs_controller(macsim_c* simBase);
 dram_c* frfcfs_controller(macsim_c* simBase);
+dram_c* dramsim_controller(macsim_c* simBase);
+#ifdef USING_SST
+dram_c* vaultsim_controller(macsim_c* simBase);
+#endif
 
 
 #endif

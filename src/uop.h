@@ -44,6 +44,8 @@ POSSIBILITY OF SUCH DAMAGE.
 #include "global_types.h"
 #include "global_defs.h"
 
+#include "hmc_types.h"
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief allocation queue types
@@ -82,6 +84,12 @@ typedef enum Uop_Type_enum {
   UOP_SHIFT,                    //!< shift
   UOP_BYTE,                     //!< byte manipulation
   UOP_MM,                       //!< multimedia instructions
+
+  // fence instruction
+  UOP_LFENCE,                   //!< load fence, TODO
+  UOP_FULL_FENCE,               //!< Full memory fence
+  UOP_ACQ_FENCE,                //!< acquire fence
+  UOP_REL_FENCE,                //!< release fence
 
   // fmem reads one int reg and writes a fp reg
   UOP_FMEM,                     //!< fp memory instruction
@@ -154,6 +162,8 @@ typedef enum Uop_Type_enum {
 	UOP_GPU_MAD24,
 	UOP_GPU_MAD,
 	UOP_GPU_MAD64,
+	UOP_GPU_MADC,
+	UOP_GPU_MADC64,
 	UOP_GPU_MAX,
 	UOP_GPU_MAX64,
 	UOP_GPU_MEMBAR_CTA,
@@ -197,6 +207,8 @@ typedef enum Uop_Type_enum {
 	UOP_GPU_SET64,
 	UOP_GPU_SETP,
 	UOP_GPU_SETP64,
+	UOP_GPU_SHFL,
+	UOP_GPU_SHFL64,
 	UOP_GPU_SHL,
 	UOP_GPU_SHL64,
 	UOP_GPU_SHR,
@@ -290,6 +302,8 @@ typedef enum Uop_Type_enum {
 	UOP_GPU_FMAD24,
 	UOP_GPU_FMAD,
 	UOP_GPU_FMAD64,
+	UOP_GPU_FMADC,
+	UOP_GPU_FMADC64,
 	UOP_GPU_FMAX,
 	UOP_GPU_FMAX64,
 	UOP_GPU_FMEMBAR_CTA,
@@ -333,6 +347,8 @@ typedef enum Uop_Type_enum {
 	UOP_GPU_FSET64,
 	UOP_GPU_FSETP,
 	UOP_GPU_FSETP64,
+	UOP_GPU_FSHFL,
+	UOP_GPU_FSHFL64,
 	UOP_GPU_FSHL,
 	UOP_GPU_FSHL64,
 	UOP_GPU_FSHR,
@@ -413,6 +429,8 @@ typedef enum Bar_Type_enum {
   BAR_FETCH     = 0x1,          //!< causes fetch to halt until a redirect occurs
   BAR_ISSUE     = 0x2,          //!< causes issue to serialize around the instruction
   PTX_BLOCK_BAR = 0x3,          //!< synchronizations with a block 
+  ACQ_BAR       = 0x4,          //!< Acquire barrier, not used
+  REL_BAR       = 0x5,          //!< Release barrier
 } Bar_Type;
 
 
@@ -469,7 +487,6 @@ typedef enum Dep_Type_enum {
   PREV_UOP_DEP,
   NUM_DEP_TYPES,
 } Dep_Type;
-
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 /// \brief Source uop information class
@@ -582,7 +599,7 @@ class uop_c
     int               m_core_id; /**< core id */
     Addr              m_pc; /**< pc address */
     Addr              m_npc; /**< next pc */
-    uint8_t           m_opcode; /**< opcode */
+    uint16_t          m_opcode; /**< opcode */
     Uop_Type          m_uop_type; /**< uop type */
     Cf_Type           m_cf_type; /**< branch type */
     Mem_Type          m_mem_type; /**< memory type */
@@ -641,6 +658,9 @@ class uop_c
     bool              m_bypass_llc; /**< bypass last level cache */
     bool              m_skip_llc; /**< skip last level cache */
 
+    // hmc info 
+    // changed by Lifeng
+    HMC_Type m_hmc_inst;  /**< hmc type of current uop*/
   private:
     macsim_c* m_simBase;         /**< macsim_c base class for simulation globals */
 

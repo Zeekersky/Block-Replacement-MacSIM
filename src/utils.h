@@ -47,6 +47,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <string>
 #include <list>
 #include <unordered_map>
+#include <unordered_set>
 #include <fstream>
 
 #include "global_types.h"
@@ -80,7 +81,8 @@ POSSIBILITY OF SUCH DAMAGE.
 #define BANK(a, num, int)		((a) >> log2_int(int) & N_BIT_MASK(log2_int(num)))
 
 #define L(x) left << setw(x)
-
+#define likely(x)          __builtin_expect(!!(x), 1)
+#define unlikely(x)        __builtin_expect(!!(x), 0)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -88,10 +90,10 @@ POSSIBILITY OF SUCH DAMAGE.
 // function declarations in utils.h. Please refer to utils.cc for the description
 int get_next_set_bit64(uns64 val, uns pos);
 int get_num_set_bits64(uns64 val);
-const char *hexstr64(uns64 );
-const char *hexstr64s(uns64 );
-const char *unsstr64(uns64 );
-const char *intstr64(int64 );
+//const char *hexstr64(uns64 );
+//const char *hexstr64s(uns64 );
+//const char *unsstr64(uns64 );
+//const char *intstr64(int64 );
 void  breakpoint(const char [], const int);
 // get log value
 uns log2_int (uns n);

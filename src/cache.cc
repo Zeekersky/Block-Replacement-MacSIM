@@ -70,7 +70,7 @@ cache_set_c::cache_set_c(int assoc)
 
 cache_set_c::~cache_set_c()
 {
-  delete m_entry;
+  delete [] m_entry;
 }
 
 
@@ -173,11 +173,7 @@ void cache_c::find_tag_and_set(Addr addr, Addr *tag, int *set)
 {
   if (m_num_tiles == 1) {
     *tag = addr >> m_shift_bits & m_tag_mask;
-    //DISABLED BY AKASH
     *set = addr >> m_shift_bits & m_set_mask;
-    // ADDED BY AKASH
-    // *set = (addr >> m_shift_bits & m_set_mask);
-    // cout << "hash: " << (addr >> m_shift_bits & m_set_mask) << endl;
   }
   else {
     Addr mod_addr;
@@ -191,15 +187,9 @@ void cache_c::find_tag_and_set(Addr addr, Addr *tag, int *set)
       mod_addr = (((addr >> m_interleave_bits) / m_num_tiles) << m_interleave_bits) | (addr & m_interleave_mask);
     }
     *tag = mod_addr >> m_shift_bits & m_tag_mask;
-    //DISABLED BY AKASH
     *set = mod_addr >> m_shift_bits & m_set_mask;
-    // ADDED BY AKASH
-    // *set = mod_addr % m_num_sets;
-    // cout << "Mod: " << mod_addr % m_num_sets << endl;
-    // cout << "Shift: " << (m_shift_bits & m_set_mask) << endl;
     //cout << hex << addr << " mod addr " << mod_addr << " imask " << m_interleave_mask << " addr & imask " << (addr & m_interleave_mask) << " other part short " << ((addr >> m_interleave_bits) / m_num_tiles)  << " other part " << (((addr >> m_interleave_bits) / m_num_tiles) << m_interleave_bits) << " num tiles " << dec << m_num_tiles << " tile bits " << m_tile_bits << " tile " << dec << ((m_num_tiles > 1) ? ((addr >> m_interleave_bits) % m_num_tiles) : 0) <<  " tag mask " << hex << m_tag_mask << " tag " << *tag << " set mask " << m_set_mask << " set " << *set << dec << "\n";
   }
-  // cout << " set " << *set << dec << "\n";
 }
 
 
@@ -216,7 +206,7 @@ void* cache_c::access_cache(Addr addr, Addr *line_addr, bool update_repl, int ap
   // Get Tag and set to check if the addr exists in cache
   find_tag_and_set(addr, &tag, &set);
   *line_addr = base_cache_line (addr);
-  // cout << "Tag: " << tag << " Set: " << set << " Line Address: " << *line_addr << "\n";
+
   if (update_repl)
     update_cache_on_access(*line_addr, set, appl_id);
 
@@ -248,7 +238,7 @@ void* cache_c::access_cache(Addr addr, Addr *line_addr, bool update_repl, int ap
   return NULL;
 }
 
-// ADDED BY AKASH (MAJOR CHANGES)
+// ADDED BY SKY (MAJOR CHANGES)
 // Access the L3 Cache to get the count of write and read miss in 1-12 way and 13-16 way seperately
 void* cache_c::access_cache_count(Addr addr, Addr *line_addr, bool update_repl, int appl_id, bool write_access) 
 {
@@ -293,7 +283,7 @@ void* cache_c::access_cache_count(Addr addr, Addr *line_addr, bool update_repl, 
           count_read_SRAM++;
       }
 
-      // NEED TO DISABLE THIS
+      // NEED TO DISABLE THIS (BY SKY)
       cout << "Set: " << set << " Write STT: " << count_write_STT << " Read STT: " << count_read_STT 
         << " Write SRAM: " << count_write_SRAM << " Read SRAM: " << count_read_SRAM << "\n";
     }
@@ -402,7 +392,7 @@ cache_entry_c* cache_c::find_replacement_line_from_same_type(int set, int appl_i
   return &(m_set[set]->m_entry[lru_index]);
 }
 
-// ADDED BY AKASH (MAJOR CHANGES)
+// ADDED BY SKY (MAJOR CHANGES)
 cache_entry_c* cache_c::find_replacement_line_with_partition(int set, int appl_id, int writemiss) 
 {
   int m_assoc_start, m_assoc_end;
@@ -489,7 +479,7 @@ void cache_c::initialize_cache_line(cache_entry_c *ins_line, Addr tag, Addr addr
   }
 }
 
-
+// CHANGES BY SKY
 void *cache_c::insert_cache(Addr addr, Addr *line_addr, Addr *updated_line, int appl_id,
     bool gpuline) 
 {
@@ -501,6 +491,7 @@ void *cache_c::insert_cache(Addr addr, Addr *line_addr, Addr *updated_line, int 
 //   return insert_cache(addr, line_addr, updated_line, appl_id, gpuline, false, writemiss);
 // }
 
+// CHANGES BY SKY
 // insert a cache line
 void *cache_c::insert_cache(Addr addr, Addr *line_addr, Addr *updated_line, int appl_id, bool gpuline, bool skip, int writemiss) 
 {
@@ -519,7 +510,7 @@ void *cache_c::insert_cache(Addr addr, Addr *line_addr, Addr *updated_line, int 
   //   cout << "Partition Enable:" << endl;
 
   // ---------------------------------------------------------------
-  // ADDED BY AKASH
+  // ADDED BY SKY
   // To enable partitioning, set m_enable_hybrid as true
   // To enable partitioning along with gpu, we need to create an alternative of find_replacement_line_from_same_type with partition logic (Not Implemented Yet)
   
@@ -530,7 +521,7 @@ void *cache_c::insert_cache(Addr addr, Addr *line_addr, Addr *updated_line, int 
       ins_line = find_replacement_line_from_same_type(set, appl_id, gpuline);
     }
     else {
-      // DISABLE BY AKASH
+      // DISABLE BY SKY
       ins_line = find_replacement_line(set, appl_id);
       // static int count1 = 0;
       // count1++;
@@ -539,7 +530,7 @@ void *cache_c::insert_cache(Addr addr, Addr *line_addr, Addr *updated_line, int 
   }
   else
   {
-    // ADDED BY AKASH
+    // ADDED BY SKY
     if (writemiss != 2)
     {
       ins_line = find_replacement_line_with_partition(set, appl_id, writemiss);

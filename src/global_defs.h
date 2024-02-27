@@ -117,7 +117,7 @@ class KnobsContainer;
 class ProcessorStatistics;
 class CoreStatistics;
 class cache_partition_framework_c;
-class ei_power_c;
+class dyfr_c;
 
 template <class T> class pqueue_c;
 template <typename T> class hash_c;
@@ -177,7 +177,8 @@ void delete_store_hash_entry_wrapper (map_c *map, uop_c *uop);
 // across all the cores
 #define MAX_NUM_TOTAL_BLOCKS 16384
 #define MAX_NUM_CORES 128
-#define NUM_REG_IDS 1024
+// #define NUM_REG_IDS 1024
+#define NUM_REG_IDS 1600 
 #define NUM_INT_REGS 32
 #define MAX_UOP_SRC_DEPS 10 // 6 + max 4 (store-load dependencies for each BYTE) // hyesoon 3-12-2009 
 #define MAX_DRAM_BANKS 32
@@ -212,5 +213,21 @@ void delete_store_hash_entry_wrapper (map_c *map, uop_c *uop);
 #ifndef NULL
 #define NULL ((void *)0x0)
 #endif
+
+#ifdef USING_SST
+#include "callback.h"
+typedef SST::MacSim::CallbackBase4<void,int,uint64_t,uint64_t,int> CallbackSendInstReq;
+#ifdef USE_VAULTSIM_HMC
+typedef SST::MacSim::CallbackBase6<void,int,uint64_t,uint64_t,int,int,uint8_t> CallbackSendDataReq;
+#else
+typedef SST::MacSim::CallbackBase5<void,int,uint64_t,uint64_t,int,int> CallbackSendDataReq;
+#endif
+typedef SST::MacSim::CallbackBase4<void,uint64_t,uint64_t,int,int> CallbackSendCubeReq;
+typedef SST::MacSim::CallbackBase2<bool,int,uint64_t> CallbackStrobeInstRespQ;
+typedef SST::MacSim::CallbackBase2<bool,int,uint64_t> CallbackStrobeDataRespQ;
+typedef SST::MacSim::CallbackBase1<bool,uint64_t> CallbackStrobeCubeRespQ;
+
+#define UNIQUE_KEY(C,T,A,I) ((A<<19)|((C&0xF)<<15)|((T&0xFF)<<7)|I)
+#endif //USING_SST
 
 #endif

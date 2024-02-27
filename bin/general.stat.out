@@ -2,17 +2,17 @@
 Interval
 ####################################################################################################
 Cumulative:         Cycles:                  20000     Instructions:                  1200
-INST_COUNT_TOT                                            4995033                       4995033
+INST_COUNT_TOT                                            4995221                       4995221
 
-UOP_COUNT_TOT                                             6747055                       6747055
+UOP_COUNT_TOT                                             6585022                       6585022
 
-CYC_COUNT_TOT                                            30622217                      30622217
+CYC_COUNT_TOT                                            86105825                      86105825
 
-EXE_TIME                                                       14                            14
+EXE_TIME                                                       18                            18
 
 NUM_REPEAT                                                      0                             0
 
-CYC_COUNT_X86                                            30622216                      30622216
+CYC_COUNT_X86                                            86105824                      86105824
 
 CYC_COUNT_PTX                                                   0                             0
 
@@ -36,7 +36,7 @@ APPL_CYC_COUNT_BASE3                                            0               
 
 APPL_CYC_COUNT_BASE4                                            0                             0
 
-APPL_CYC_COUNT0                                          30622216                   3.06222e+07
+APPL_CYC_COUNT0                                          86105824                   8.61058e+07
 
 APPL_CYC_COUNT1                                                 0                           NaN
 
@@ -70,11 +70,11 @@ CYCLE_CPU                                                       0               
 
 CYCLE_GPU                                                       0                             0
 
-INST_COUNT_CORE_0                                         4995033                       4995033
+INST_COUNT_CORE_0                                         4995221                       4995221
 
-UOP_COUNT_CORE_0                                          6747055                       6747055
+UOP_COUNT_CORE_0                                          6585022                       6585022
 
-CYC_COUNT_CORE_0                                          9186666                       9186666
+CYC_COUNT_CORE_0                                         10763229                      10763229
 
 INST_COUNT_CORE_1                                               0                             0
 

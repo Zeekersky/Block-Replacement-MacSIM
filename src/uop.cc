@@ -130,6 +130,10 @@ const char *uop_c::g_uop_type_name[NUM_UOP_TYPES] = {
   "UOP_SHIFT",
   "UOP_BYTE",
   "UOP_MM",
+  "UOP_LFENCE",
+  "UOP_FULL_FENCE",
+  "UOP_ACQ_FENCE",
+  "UOP_REL_FENCE",
   "UOP_FMEM",
   "UOP_FCF",
   "UOP_FCVT",
@@ -190,6 +194,8 @@ const char *uop_c::g_uop_type_name[NUM_UOP_TYPES] = {
 	"UOP_GPU_MAD24",
 	"UOP_GPU_MAD",
 	"UOP_GPU_MAD64",
+	"UOP_GPU_MADC",
+	"UOP_GPU_MADC64",
 	"UOP_GPU_MAX",
 	"UOP_GPU_MAX64",
 	"UOP_GPU_MEMBAR",
@@ -229,6 +235,8 @@ const char *uop_c::g_uop_type_name[NUM_UOP_TYPES] = {
 	"UOP_GPU_SET64",
 	"UOP_GPU_SETP",
 	"UOP_GPU_SETP64",
+	"UOP_GPU_SHFL",
+	"UOP_GPU_SHFL64",
 	"UOP_GPU_SHL",
 	"UOP_GPU_SHL64",
 	"UOP_GPU_SHR",
@@ -474,6 +482,8 @@ void uop_c::init()
   m_dcache_bank_id                    = 128;
   m_bypass_llc                        = false;
   m_skip_llc                          = false;
+
+  m_hmc_inst                          = HMC_NONE;
 }
 
 

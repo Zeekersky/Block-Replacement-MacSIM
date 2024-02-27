@@ -155,6 +155,11 @@ class all_knobs_c {
 		KnobTemplate< int >* KNOB_EI_EXEC_WIDTH;
 		KnobTemplate< int >* KNOB_EI_COMMIT_WIDTH;
 		KnobTemplate< bool >* KNOB_IS_FERMI;
+		KnobTemplate< bool >* KNOB_FENCE_ENABLE;
+		KnobTemplate< bool >* KNOB_FENCE_PREF_ENABLE;
+		KnobTemplate< bool >* KNOB_ACQ_REL;
+		KnobTemplate< bool >* KNOB_USE_WB;
+		KnobTemplate< int >* KNOB_WB_SIZE;
 		
 
 	// =========== ../def/debug.param.def ===========
@@ -182,6 +187,20 @@ class all_knobs_c {
 		KnobTemplate< uns >* KNOB_DEBUG_PRINT_TRACE;
 		KnobTemplate< bool >* KNOB_DEBUG_MEM_TRACE;
 		KnobTemplate< bool >* KNOB_DEBUG_NOC;
+		
+
+	// =========== ../def/dyfr.param.def ===========
+		KnobTemplate< bool >* KNOB_ENABLE_DYFR;
+		KnobTemplate< int >* KNOB_NUM_CPU_APPLICATION;
+		KnobTemplate< int >* KNOB_DYFR_GPU_FREQ_MIN;
+		KnobTemplate< int >* KNOB_DYFR_GPU_FREQ_MAX;
+		KnobTemplate< int >* KNOB_DYFR_CPU_FREQ_MIN;
+		KnobTemplate< int >* KNOB_DYFR_CPU_FREQ_MAX;
+		KnobTemplate< int >* KNOB_DYFR_SAMPLE_PERIOD;
+		KnobTemplate< int >* KNOB_DYFR_PLL_LOCK;
+		KnobTemplate< int >* KNOB_DYFR_CPU_BUDGET;
+		KnobTemplate< int >* KNOB_DYFR_GPU_BUDGET;
+		KnobTemplate< int >* KNOB_DYFR_MEM_BUDGET;
 		
 
 	// =========== ../def/frontend.param.def ===========
@@ -233,176 +252,8 @@ class all_knobs_c {
 		KnobTemplate< bool >* KNOB_TRACE_USES_64_BIT_ADDR;
 		
 
-	// =========== ../def/internal.param.def ===========
-		KnobTemplate< int >* KNOB_RRIP_CACHE_NUM_BIT;
-		KnobTemplate< int >* KNOB_RRIP_CACHE_INSERT_AT;
-		KnobTemplate< int >* KNOB_RRIP_CACHE_NUM_COUNTER_BIT;
-		KnobTemplate< bool >* KNOB_RRIP_CACHE_DYNAMIC_ON;
-		KnobTemplate< int >* KNOB_RRIP_CACHE_BIP_EPSILON;
-		KnobTemplate< bool >* KNOB_RRIP_CACHE_FOR_GPU;
-		KnobTemplate< bool >* KNOB_RRIP_CACHE_FOR_MULTI_GPU;
-		KnobTemplate< int >* KNOB_RRIP_CACHE_PROBABILITY;
-		KnobTemplate< bool >* KNOB_RRIP_BIP_ALWAYS;
-		KnobTemplate< int >* KNOB_TADIP_CACHE_NUM_COUNTER_BIT;
-		KnobTemplate< int >* KNOB_TADIP_CACHE_BIP_EPSILON;
-		KnobTemplate< int >* KNOB_UCP_CACHE_NUM_APPLICATION;
-		KnobTemplate< int >* KNOB_UCP_CACHE_PARTITION_PERIOD;
-		KnobTemplate< bool >* KNOB_UCP_CACHE_FOR_GPU;
-		KnobTemplate< bool >* KNOB_UCP_CACHE_FOR_MULTI_GPU;
-		KnobTemplate< int >* KNOB_UCP_CACHE_CPU_INTERFERENCE;
-		KnobTemplate< int >* KNOB_UCP_CACHE_GPU_MAX_PARTITION_LOOKUP;
-		KnobTemplate< int >* KNOB_UCP_CACHE_GPU_DROP_PROBABILITY;
-		KnobTemplate< int >* KNOB_UCP_CACHE_ACCESS_CONTROL;
-		KnobTemplate< bool >* KNOB_ABIP_CACHE_DIP;
-		KnobTemplate< int >* KNOB_ABIP_CACHE_PERIOD;
-		KnobTemplate< bool >* KNOB_CACHE_FOR_STREAM_CPU;
-		KnobTemplate< int >* KNOB_TC_CACHE_CAGING_PERIOD;
-		KnobTemplate< int >* KNOB_TC_CACHE_CAGING_SPACE;
-		KnobTemplate< int >* KNOB_TC_CACHE_NUM_APPLICATION;
-		KnobTemplate< int >* KNOB_BDP_THRESHOLD;
-		KnobTemplate< int >* KNOB_BDP_DEGREE;
-		KnobTemplate< bool >* KNOB_PREF_2DC_ON;
-		KnobTemplate< bool >* KNOB_PREF_2DC_ON_MEDIUM_CORE;
-		KnobTemplate< bool >* KNOB_PREF_2DC_ON_LARGE_CORE;
-		KnobTemplate< bool >* KNOB_DEBUG_PREF_2DC;
-		KnobTemplate< uns >* KNOB_PREF_2DC_CACHE_SIZE;
-		KnobTemplate< uns >* KNOB_PREF_2DC_CACHE_ASSOC;
-		KnobTemplate< uns >* KNOB_PREF_2DC_CACHE_LINE_SIZE;
-		KnobTemplate< uns >* KNOB_PREF_2DC_MAX_DEGREE;
-		KnobTemplate< uns >* KNOB_PREF_2DC_DEGREE;
-		KnobTemplate< uns >* KNOB_PREF_2DC_ZONE_SHIFT;
-		KnobTemplate< uns >* KNOB_PREF_2DC_TAG_SIZE;
-		KnobTemplate< uns >* KNOB_PREF_2DC_NUM_REGIONS;
-		KnobTemplate< uns >* KNOB_PREF_2DC_REGION_HASH;
-		KnobTemplate< uns >* KNOB_PREF_2DC_BANKS;
-		KnobTemplate< bool >* KNOB_DEBUG_PREF_GHB;
-		KnobTemplate< uns >* KNOB_PREF_GHB_BUFFER_N;
-		KnobTemplate< uns >* KNOB_PREF_GHB_INDEX_N;
-		KnobTemplate< uns >* KNOB_PREF_GHB_CZONE_BITS;
-		KnobTemplate< uns >* KNOB_PREF_GHB_DEGREE;
-		KnobTemplate< uns >* KNOB_PREF_GHB_MAX_DEGREE;
-		KnobTemplate< bool >* KNOB_PREF_GHB_ON;
-		KnobTemplate< bool >* KNOB_PREF_GHB_ON_MEDIUM_CORE;
-		KnobTemplate< bool >* KNOB_PREF_GHB_ON_LARGE_CORE;
-		KnobTemplate< bool >* KNOB_PREF_PHASE_ON;
-		KnobTemplate< bool >* KNOB_PREF_PHASE_ON_MEDIUM_CORE;
-		KnobTemplate< bool >* KNOB_PREF_PHASE_ON_LARGE_CORE;
-		KnobTemplate< bool >* KNOB_PREF_PHASE_STUDY;
-		KnobTemplate< bool >* KNOB_DEBUG_PREF_PHASE;
-		KnobTemplate< uns >* KNOB_PREF_PHASE_PRIME_HASH;
-		KnobTemplate< uns >* KNOB_PREF_PHASE_INFOSIZE;
-		KnobTemplate< uns >* KNOB_PREF_PHASE_LOG2REGIONSIZE;
-		KnobTemplate< uns >* KNOB_PREF_PHASE_REGIONENTRIES;
-		KnobTemplate< uns >* KNOB_PREF_PHASE_TRACKEDREGIONS;
-		KnobTemplate< uns >* KNOB_PREF_PHASE_INTERVAL;
-		KnobTemplate< uns >* KNOB_PREF_PHASE_TABLE_SIZE;
-		KnobTemplate< uns >* KNOB_PREF_PHASE_MAXDIFF_THRESH;
-		KnobTemplate< uns >* KNOB_PREF_PHASE_MIN_MISSES;
-		KnobTemplate< float >* KNOB_PREF_PHASE_MISSPER;
-		KnobTemplate< bool >* KNOB_PREF_STRIDEPC_ON;
-		KnobTemplate< bool >* KNOB_PREF_STRIDEPC_ON_MEDIUM_CORE;
-		KnobTemplate< bool >* KNOB_PREF_STRIDEPC_ON_LARGE_CORE;
-		KnobTemplate< bool >* KNOB_DEBUG_PREF_STRIDEPC;
-		KnobTemplate< uns >* KNOB_PREF_STRIDEPC_TABLE_N;
-		KnobTemplate< uns >* KNOB_PREF_STRIDEPC_DEGREE;
-		KnobTemplate< uns >* KNOB_PREF_STRIDEPC_DISTANCE;
-		KnobTemplate< bool >* KNOB_PREF_STRIDEPC_USELOADADDR;
-		KnobTemplate< uns >* KNOB_PREF_STRIDEPC_TRAINNUM;
-		KnobTemplate< uns >* KNOB_PREF_STRIDEPC_STARTDIS;
-		KnobTemplate< uns >* KNOB_STREAM_BUFFER_N;
-		KnobTemplate< uns >* KNOB_STREAM_PREFETCH_N;
-		KnobTemplate< uns >* KNOB_STREAM_START_DIS;
-		KnobTemplate< uns >* KNOB_STREAM_LENGTH;
-		KnobTemplate< uns >* KNOB_STREAM_TRAIN_LENGTH;
-		KnobTemplate< uns >* KNOB_STREAM_TRAIN_NUM;
-		KnobTemplate< bool >* KNOB_STREAM_ACC_THROTTLE;
-		KnobTemplate< bool >* KNOB_PREF_ACC_USE_CACHE;
-		KnobTemplate< bool >* KNOB_STREAM_STALL_ON_QUEUE_FULL;
-		KnobTemplate< uns >* KNOB_STREAM_L1Q_DEMAND_RESERVE;
-		KnobTemplate< uns >* KNOB_PREF_TRAIN_WINDOW_SLACK;
-		KnobTemplate< uns >* KNOB_PREF_SCHEDULE_NUM;
-		KnobTemplate< uns >* KNOB_TRAIN_FILTER_SIZE;
-		KnobTemplate< uns >* KNOB_PREF_REQ_Q_SIZE;
-		KnobTemplate< uns >* KNOB_STREAM_CREATE_ON_DC_MISS;
-		KnobTemplate< bool >* KNOB_STREAM_CREATE_ON_L1_MISS;
-		KnobTemplate< bool >* KNOB_STREAM_TRAIN_ON_WRONGPATH;
-		KnobTemplate< bool >* KNOB_STREAM_CREATE_ON_WRONGPATH;
-		KnobTemplate< bool >* KNOB_STREAM_PREF_INTO_DCACHE;
-		KnobTemplate< bool >* KNOB_STREAM_TRAIN_ON_DC_MISS;
-		KnobTemplate< bool >* KNOB_REMOVE_REDUNDANT_STREAM;
-		KnobTemplate< uns >* KNOB_L2HIT_STREAM_SCHEDULE_NUM;
-		KnobTemplate< bool >* KNOB_PREF_REQ_QUEUE_FILTER_ON;
-		KnobTemplate< bool >* KNOB_HW_PREF_HIT_TRAIN_STREAM;
-		KnobTemplate< uns >* KNOB_L2HIT_STREAM_BUFFER_N;
-		KnobTemplate< uns >* KNOB_L2HIT_STREAM_PREFETCH_N;
-		KnobTemplate< bool >* KNOB_L2HIT_STREAM_L2MISS_DROP;
-		KnobTemplate< uns >* KNOB_L2HIT_STREAM_START_DIS;
-		KnobTemplate< uns >* KNOB_L2HIT_STREAM_LENGTH;
-		KnobTemplate< uns >* KNOB_L2HIT_PREF_REQ_Q_SIZE;
-		KnobTemplate< uns >* KNOB_L2HIT_L2ACCESS_REQ_Q_SIZE;
-		KnobTemplate< bool >* KNOB_PREF_STREAM_ACCPERSTREAM;
-		KnobTemplate< bool >* KNOB_PREF_ACC_ON;
-		KnobTemplate< uns >* KNOB_PREF_ACC_REGION_SIZE;
-		KnobTemplate< uns >* KNOB_PREF_ACC_NUM_REGIONS;
-		KnobTemplate< bool >* KNOB_PREF_ACC_INCDEC_LENGTH;
-		KnobTemplate< float >* KNOB_PREF_TRAIN_THRESH_1;
-		KnobTemplate< float >* KNOB_PREF_TRAIN_THRESH_2;
-		KnobTemplate< float >* KNOB_PREF_TRAIN_THRESH_3;
-		KnobTemplate< uns >* KNOB_PREF_STREAM_TRAIN_NUM_0;
-		KnobTemplate< uns >* KNOB_PREF_STREAM_TRAIN_NUM_1;
-		KnobTemplate< uns >* KNOB_PREF_STREAM_TRAIN_NUM_2;
-		KnobTemplate< uns >* KNOB_PREF_STREAM_TRAIN_NUM_3;
-		KnobTemplate< float >* KNOB_PREF_ACC_TRAIN_ACCOFFSET_0;
-		KnobTemplate< float >* KNOB_PREF_ACC_TRAIN_ACCOFFSET_1;
-		KnobTemplate< float >* KNOB_PREF_ACC_TRAIN_ACCOFFSET_2;
-		KnobTemplate< float >* KNOB_PREF_ACC_TRAIN_ACCOFFSET_3;
-		KnobTemplate< uns >* KNOB_PREF_ACC_DISTANCE_1;
-		KnobTemplate< uns >* KNOB_PREF_ACC_DISTANCE_2;
-		KnobTemplate< uns >* KNOB_PREF_ACC_DISTANCE_3;
-		KnobTemplate< uns >* KNOB_PREF_ACC_DISTANCE_4;
-		KnobTemplate< uns >* KNOB_PREF_ACC_DISTANCE_5;
-		KnobTemplate< uns >* KNOB_PREF_ACC_DISTANCE_6;
-		KnobTemplate< uns >* KNOB_PREF_ACC_DISTANCE_7;
-		KnobTemplate< uns >* KNOB_PREF_ACC_DISTANCE_8;
-		KnobTemplate< uns >* KNOB_PREF_ACC_DISTANCE_9;
-		KnobTemplate< uns >* KNOB_PREF_ACC_DISTANCE_10;
-		KnobTemplate< bool >* KNOB_PREF_ACC_REGION_MOVE_ON;
-		KnobTemplate< float >* KNOB_PREF_ACC_REGION_MOVE_FRACT;
-		KnobTemplate< bool >* KNOB_PREF_ACC_CREATE_REG_ON_L2_ACCESS;
-		KnobTemplate< bool >* KNOB_PREF_ACC_USE_REGION;
-		KnobTemplate< uns >* KNOB_PREF_ACC_UPDATE_DELAY;
-		KnobTemplate< bool >* KNOB_PREF_ACC_USE_OVERALLALSO;
-		KnobTemplate< bool >* KNOB_PREF_ACC_USE_ONLYGLOBAL;
-		KnobTemplate< uns >* KNOB_PREF_STREAM_MAX_DISTANCE;
-		KnobTemplate< bool >* KNOB_PREF_STREAM_DYN_TRAIN_ON;
-		KnobTemplate< bool >* KNOB_PREF_STREAM_DYN_DIST_ON;
-		KnobTemplate< bool >* KNOB_PREF_STREAM_ON;
-		KnobTemplate< bool >* KNOB_PREF_STREAM_ON_MEDIUM_CORE;
-		KnobTemplate< bool >* KNOB_PREF_STREAM_ON_LARGE_CORE;
-		KnobTemplate< bool >* KNOB_PREF_THROTTLE_ON;
-		KnobTemplate< bool >* KNOB_PREF_THROTTLEFB_ON;
-		KnobTemplate< float >* KNOB_PREF_ACC_THRESH_4;
-		KnobTemplate< bool >* KNOB_PREF_ACCRATIOTHROTTLE;
-		KnobTemplate< float >* KNOB_PREF_ACCRATIO_1;
-		KnobTemplate< uns >* KNOB_DEBUG_STREAM;
-		KnobTemplate< bool >* KNOB_ADD_PRED_TO_BP_HIST;
-		KnobTemplate< bool >* KNOB_BP_HIST_HIGH_BIT_MOST_RECENT;
-		KnobTemplate< bool >* KNOB_PERFECT_GHR_SWITCHING;
-		KnobTemplate< uns >* KNOB_MT_GHR_INDEX_LENGTH;
-		KnobTemplate< bool >* KNOB_UPDATE_CURRENT_HIST_ONLY;
-		KnobTemplate< uns >* KNOB_PERCEPTRON_CTR_BITS;
-		KnobTemplate< uns >* KNOB_PERCEPTRON_ENTRIES;
-		KnobTemplate< uns >* KNOB_PERCEPTRON_THRESH_OVRD;
-		KnobTemplate< uns >* KNOB_HIST_LENGTH;
-		KnobTemplate< int >* KNOB_DRAM_SCHEDULE_GRANULARITY;
-		KnobTemplate< float >* KNOB_ASJF_ALPHA;
-		KnobTemplate< float >* KNOB_ASJF_M;
-		KnobTemplate< bool >* KNOB_USE_RR_FOR_NOC_INSERTION;
-		KnobTemplate< bool >* KNOB_FIXED_LATENCY_NOC;
-		KnobTemplate< int >* KNOB_L2_L3_LINK_LATENCY;
-		KnobTemplate< int >* KNOB_L3_DRAM_LINK_LATENCY;
-		KnobTemplate< int >* KNOB_L3_ADDITIONAL_LATENCY;
-		KnobTemplate< bool >* KNOB_USE_SIMPLE_ROUTER;
+	// =========== ../def/hmc.param.def ===========
+		KnobTemplate< bool >* KNOB_ENABLE_HMC_INST;
 		
 
 	// =========== ../def/memory.param.def ===========
@@ -545,6 +396,8 @@ class all_knobs_c {
 		KnobTemplate< int >* KNOB_PAGE_SIZE;
 		KnobTemplate< int >* KNOB_REGION_SIZE;
 		KnobTemplate< string >* KNOB_PAGE_MAPPING_POLICY;
+		KnobTemplate< bool >* KNOB_USE_MEMHIERARCHY;
+		KnobTemplate< bool >* KNOB_USE_VAULTSIM_LINK;
 		
 
 	// =========== ../def/network.param.def ===========

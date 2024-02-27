@@ -25,6 +25,7 @@ all_stats_c::all_stats_c(ProcessorStatistics* procStat) {
 	m_SCHED_FAILED_REASON_SUCCESS = (COUNT_Stat*) new DISTMember_Stat("SCHED_FAILED_REASON_SUCCESS", "core.stat.out", SCHED_FAILED_REASON_SUCCESS, SCHED_FAILED_REASON_SUCCESS);
 	m_SCHED_FAILED_OPERANDS_NOT_READY = (COUNT_Stat*) new DISTMember_Stat("SCHED_FAILED_OPERANDS_NOT_READY", "core.stat.out", SCHED_FAILED_OPERANDS_NOT_READY, SCHED_FAILED_REASON_SUCCESS);
 	m_SCHED_FAILED_NO_PORTS = (COUNT_Stat*) new DISTMember_Stat("SCHED_FAILED_NO_PORTS", "core.stat.out", SCHED_FAILED_NO_PORTS, SCHED_FAILED_REASON_SUCCESS);
+	m_SCHED_FAILED_FENCE_ACTIVE = (COUNT_Stat*) new DISTMember_Stat("SCHED_FAILED_FENCE_ACTIVE", "core.stat.out", SCHED_FAILED_FENCE_ACTIVE, SCHED_FAILED_REASON_SUCCESS);
 	m_NUM_SAMPLES = new COUNT_Stat("NUM_SAMPLES", "core.stat.out", NUM_SAMPLES);
 	m_NUM_ACTIVE_BLOCKS = new RATIO_Stat("NUM_ACTIVE_BLOCKS",  "core.stat.out", NUM_ACTIVE_BLOCKS, NUM_SAMPLES, procStat);
 	m_NUM_ACTIVE_THREADS = new RATIO_Stat("NUM_ACTIVE_THREADS",  "core.stat.out", NUM_ACTIVE_THREADS, NUM_SAMPLES, procStat);
@@ -44,6 +45,11 @@ all_stats_c::all_stats_c(ProcessorStatistics* procStat) {
 	m_CORE_NUM_RETIRE_CYCLES = new COUNT_Stat("CORE_NUM_RETIRE_CYCLES", "core.stat.out", CORE_NUM_RETIRE_CYCLES);
 	m_CORE_RETIRE_DELTA = new RATIO_Stat("CORE_RETIRE_DELTA",  "core.stat.out", CORE_RETIRE_DELTA, CORE_NUM_RETIRE_CYCLES, procStat);
 	m_AVG_CORE_IDLE_CYCLE = new COUNT_Stat("AVG_CORE_IDLE_CYCLE", "core.stat.out", AVG_CORE_IDLE_CYCLE);
+	m_FENCE_PREF_REQ = new COUNT_Stat("FENCE_PREF_REQ", "core.stat.out", FENCE_PREF_REQ);
+	m_FENCE_WAITING = new COUNT_Stat("FENCE_WAITING", "core.stat.out", FENCE_WAITING);
+	m_DYN_FENCE_NUM = new COUNT_Stat("DYN_FENCE_NUM", "core.stat.out", DYN_FENCE_NUM);
+	m_WB_ORDERING_STALL = new COUNT_Stat("WB_ORDERING_STALL", "core.stat.out", WB_ORDERING_STALL);
+	m_WB_FULL = new COUNT_Stat("WB_FULL", "core.stat.out", WB_FULL);
 	
 	// ============= ../def/core_trace.stat.def =============
 	
@@ -70,6 +76,8 @@ all_stats_c::all_stats_c(ProcessorStatistics* procStat) {
 	m_DRAM_CHANNEL5_DBUS_IDLE = new COUNT_Stat("DRAM_CHANNEL5_DBUS_IDLE", "dram.stat.out", DRAM_CHANNEL5_DBUS_IDLE);
 	m_DRAM_CHANNEL6_DBUS_IDLE = new COUNT_Stat("DRAM_CHANNEL6_DBUS_IDLE", "dram.stat.out", DRAM_CHANNEL6_DBUS_IDLE);
 	m_DRAM_CHANNEL7_DBUS_IDLE = new COUNT_Stat("DRAM_CHANNEL7_DBUS_IDLE", "dram.stat.out", DRAM_CHANNEL7_DBUS_IDLE);
+	
+	// ============= ../def/dyfr.stat.def =============
 	
 	// ============= ../def/general.stat.def =============
 	m_INST_COUNT_TOT = new COUNT_Stat("INST_COUNT_TOT", "general.stat.out", INST_COUNT_TOT);
@@ -109,6 +117,10 @@ all_stats_c::all_stats_c(ProcessorStatistics* procStat) {
 	m_CPI_DELTA4 = new RATIO_Stat("CPI_DELTA4",  "general.stat.out", CPI_DELTA4, CPI_DELTA_BASE4, procStat);
 	m_CYCLE_CPU = new COUNT_Stat("CYCLE_CPU", "general.stat.out", CYCLE_CPU);
 	m_CYCLE_GPU = new COUNT_Stat("CYCLE_GPU", "general.stat.out", CYCLE_GPU);
+	
+	// ============= ../def/hmc.stat.def =============
+	m_HMC_INST_COUNT = new COUNT_Stat("HMC_INST_COUNT", "hmc.stat.out", HMC_INST_COUNT);
+	m_HMC_UOP_COUNT = new COUNT_Stat("HMC_UOP_COUNT", "hmc.stat.out", HMC_UOP_COUNT);
 	
 	// ============= ../def/inst.stat.def =============
 	m_DIST_OP_CAT_XED_CATEGORY_INVALID = new DIST_Stat("OP_CAT_XED_CATEGORY_INVALID", "inst.stat.out", OP_CAT_XED_CATEGORY_INVALID, procStat);
@@ -230,6 +242,8 @@ all_stats_c::all_stats_c(ProcessorStatistics* procStat) {
 	m_OP_CAT_GPU_MAD24 = (COUNT_Stat*) new DISTMember_Stat("OP_CAT_GPU_MAD24", "inst.stat.out", OP_CAT_GPU_MAD24, OP_CAT_XED_CATEGORY_INVALID);
 	m_OP_CAT_GPU_MAD = (COUNT_Stat*) new DISTMember_Stat("OP_CAT_GPU_MAD", "inst.stat.out", OP_CAT_GPU_MAD, OP_CAT_XED_CATEGORY_INVALID);
 	m_OP_CAT_GPU_MAD64 = (COUNT_Stat*) new DISTMember_Stat("OP_CAT_GPU_MAD64", "inst.stat.out", OP_CAT_GPU_MAD64, OP_CAT_XED_CATEGORY_INVALID);
+	m_OP_CAT_GPU_MADC = (COUNT_Stat*) new DISTMember_Stat("OP_CAT_GPU_MADC", "inst.stat.out", OP_CAT_GPU_MADC, OP_CAT_XED_CATEGORY_INVALID);
+	m_OP_CAT_GPU_MADC64 = (COUNT_Stat*) new DISTMember_Stat("OP_CAT_GPU_MADC64", "inst.stat.out", OP_CAT_GPU_MADC64, OP_CAT_XED_CATEGORY_INVALID);
 	m_OP_CAT_GPU_MAX = (COUNT_Stat*) new DISTMember_Stat("OP_CAT_GPU_MAX", "inst.stat.out", OP_CAT_GPU_MAX, OP_CAT_XED_CATEGORY_INVALID);
 	m_OP_CAT_GPU_MAX64 = (COUNT_Stat*) new DISTMember_Stat("OP_CAT_GPU_MAX64", "inst.stat.out", OP_CAT_GPU_MAX64, OP_CAT_XED_CATEGORY_INVALID);
 	m_OP_CAT_GPU_MEMBAR_CTA = (COUNT_Stat*) new DISTMember_Stat("OP_CAT_GPU_MEMBAR_CTA", "inst.stat.out", OP_CAT_GPU_MEMBAR_CTA, OP_CAT_XED_CATEGORY_INVALID);
@@ -273,6 +287,8 @@ all_stats_c::all_stats_c(ProcessorStatistics* procStat) {
 	m_OP_CAT_GPU_SET64 = (COUNT_Stat*) new DISTMember_Stat("OP_CAT_GPU_SET64", "inst.stat.out", OP_CAT_GPU_SET64, OP_CAT_XED_CATEGORY_INVALID);
 	m_OP_CAT_GPU_SETP = (COUNT_Stat*) new DISTMember_Stat("OP_CAT_GPU_SETP", "inst.stat.out", OP_CAT_GPU_SETP, OP_CAT_XED_CATEGORY_INVALID);
 	m_OP_CAT_GPU_SETP64 = (COUNT_Stat*) new DISTMember_Stat("OP_CAT_GPU_SETP64", "inst.stat.out", OP_CAT_GPU_SETP64, OP_CAT_XED_CATEGORY_INVALID);
+	m_OP_CAT_GPU_SHFL = (COUNT_Stat*) new DISTMember_Stat("OP_CAT_GPU_SHFL", "inst.stat.out", OP_CAT_GPU_SHFL, OP_CAT_XED_CATEGORY_INVALID);
+	m_OP_CAT_GPU_SHFL64 = (COUNT_Stat*) new DISTMember_Stat("OP_CAT_GPU_SHFL64", "inst.stat.out", OP_CAT_GPU_SHFL64, OP_CAT_XED_CATEGORY_INVALID);
 	m_OP_CAT_GPU_SHL = (COUNT_Stat*) new DISTMember_Stat("OP_CAT_GPU_SHL", "inst.stat.out", OP_CAT_GPU_SHL, OP_CAT_XED_CATEGORY_INVALID);
 	m_OP_CAT_GPU_SHL64 = (COUNT_Stat*) new DISTMember_Stat("OP_CAT_GPU_SHL64", "inst.stat.out", OP_CAT_GPU_SHL64, OP_CAT_XED_CATEGORY_INVALID);
 	m_OP_CAT_GPU_SHR = (COUNT_Stat*) new DISTMember_Stat("OP_CAT_GPU_SHR", "inst.stat.out", OP_CAT_GPU_SHR, OP_CAT_XED_CATEGORY_INVALID);
@@ -773,6 +789,7 @@ all_stats_c::~all_stats_c() {
 	delete m_SCHED_FAILED_REASON_SUCCESS;
 	delete m_SCHED_FAILED_OPERANDS_NOT_READY;
 	delete m_SCHED_FAILED_NO_PORTS;
+	delete m_SCHED_FAILED_FENCE_ACTIVE;
 	delete m_NUM_SAMPLES;
 	delete m_NUM_ACTIVE_BLOCKS;
 	delete m_NUM_ACTIVE_THREADS;
@@ -792,6 +809,11 @@ all_stats_c::~all_stats_c() {
 	delete m_CORE_NUM_RETIRE_CYCLES;
 	delete m_CORE_RETIRE_DELTA;
 	delete m_AVG_CORE_IDLE_CYCLE;
+	delete m_FENCE_PREF_REQ;
+	delete m_FENCE_WAITING;
+	delete m_DYN_FENCE_NUM;
+	delete m_WB_ORDERING_STALL;
+	delete m_WB_FULL;
 	delete m_DRAM_PRECHARGE;
 	delete m_DRAM_ACTIVATE;
 	delete m_DRAM_COLUMN;
@@ -851,6 +873,8 @@ all_stats_c::~all_stats_c() {
 	delete m_CPI_DELTA4;
 	delete m_CYCLE_CPU;
 	delete m_CYCLE_GPU;
+	delete m_HMC_INST_COUNT;
+	delete m_HMC_UOP_COUNT;
 	delete m_DIST_OP_CAT_XED_CATEGORY_INVALID;
 	delete m_OP_CAT_XED_CATEGORY_INVALID;
 	delete m_OP_CAT_XED_CATEGORY_3DNOW;
@@ -970,6 +994,8 @@ all_stats_c::~all_stats_c() {
 	delete m_OP_CAT_GPU_MAD24;
 	delete m_OP_CAT_GPU_MAD;
 	delete m_OP_CAT_GPU_MAD64;
+	delete m_OP_CAT_GPU_MADC;
+	delete m_OP_CAT_GPU_MADC64;
 	delete m_OP_CAT_GPU_MAX;
 	delete m_OP_CAT_GPU_MAX64;
 	delete m_OP_CAT_GPU_MEMBAR_CTA;
@@ -1013,6 +1039,8 @@ all_stats_c::~all_stats_c() {
 	delete m_OP_CAT_GPU_SET64;
 	delete m_OP_CAT_GPU_SETP;
 	delete m_OP_CAT_GPU_SETP64;
+	delete m_OP_CAT_GPU_SHFL;
+	delete m_OP_CAT_GPU_SHFL64;
 	delete m_OP_CAT_GPU_SHL;
 	delete m_OP_CAT_GPU_SHL64;
 	delete m_OP_CAT_GPU_SHR;
@@ -1987,6 +2015,7 @@ void all_stats_c::initialize(ProcessorStatistics* m_ProcessorStats, CoreStatisti
 	m_coreStatsTemplate->addStatistic(m_SCHED_FAILED_REASON_SUCCESS);
 	m_coreStatsTemplate->addStatistic(m_SCHED_FAILED_OPERANDS_NOT_READY);
 	m_coreStatsTemplate->addStatistic(m_SCHED_FAILED_NO_PORTS);
+	m_coreStatsTemplate->addStatistic(m_SCHED_FAILED_FENCE_ACTIVE);
 	m_coreStatsTemplate->addStatistic(m_NUM_SAMPLES);
 	m_coreStatsTemplate->addStatistic(m_NUM_ACTIVE_BLOCKS);
 	m_coreStatsTemplate->addStatistic(m_NUM_ACTIVE_THREADS);
@@ -2002,9 +2031,16 @@ void all_stats_c::initialize(ProcessorStatistics* m_ProcessorStats, CoreStatisti
 	m_coreStatsTemplate->addStatistic(m_CORE_FETCH_DELTA);
 	m_coreStatsTemplate->addStatistic(m_CORE_NUM_RETIRE_CYCLES);
 	m_coreStatsTemplate->addStatistic(m_CORE_RETIRE_DELTA);
+	m_coreStatsTemplate->addStatistic(m_FENCE_PREF_REQ);
+	m_coreStatsTemplate->addStatistic(m_FENCE_WAITING);
+	m_coreStatsTemplate->addStatistic(m_DYN_FENCE_NUM);
+	m_coreStatsTemplate->addStatistic(m_WB_ORDERING_STALL);
+	m_coreStatsTemplate->addStatistic(m_WB_FULL);
 	m_coreStatsTemplate->addStatistic(m_INST_COUNT);
 	m_coreStatsTemplate->addStatistic(m_UOP_COUNT);
 	m_coreStatsTemplate->addStatistic(m_CYC_COUNT);
+	m_coreStatsTemplate->addStatistic(m_HMC_INST_COUNT);
+	m_coreStatsTemplate->addStatistic(m_HMC_UOP_COUNT);
 	m_coreStatsTemplate->addStatistic(m_OP_CAT_XED_CATEGORY_INVALID);
 	m_coreStatsTemplate->addStatistic(m_OP_CAT_XED_CATEGORY_3DNOW);
 	m_coreStatsTemplate->addStatistic(m_OP_CAT_XED_CATEGORY_AES);
@@ -2123,6 +2159,8 @@ void all_stats_c::initialize(ProcessorStatistics* m_ProcessorStats, CoreStatisti
 	m_coreStatsTemplate->addStatistic(m_OP_CAT_GPU_MAD24);
 	m_coreStatsTemplate->addStatistic(m_OP_CAT_GPU_MAD);
 	m_coreStatsTemplate->addStatistic(m_OP_CAT_GPU_MAD64);
+	m_coreStatsTemplate->addStatistic(m_OP_CAT_GPU_MADC);
+	m_coreStatsTemplate->addStatistic(m_OP_CAT_GPU_MADC64);
 	m_coreStatsTemplate->addStatistic(m_OP_CAT_GPU_MAX);
 	m_coreStatsTemplate->addStatistic(m_OP_CAT_GPU_MAX64);
 	m_coreStatsTemplate->addStatistic(m_OP_CAT_GPU_MEMBAR_CTA);
@@ -2166,6 +2204,8 @@ void all_stats_c::initialize(ProcessorStatistics* m_ProcessorStats, CoreStatisti
 	m_coreStatsTemplate->addStatistic(m_OP_CAT_GPU_SET64);
 	m_coreStatsTemplate->addStatistic(m_OP_CAT_GPU_SETP);
 	m_coreStatsTemplate->addStatistic(m_OP_CAT_GPU_SETP64);
+	m_coreStatsTemplate->addStatistic(m_OP_CAT_GPU_SHFL);
+	m_coreStatsTemplate->addStatistic(m_OP_CAT_GPU_SHFL64);
 	m_coreStatsTemplate->addStatistic(m_OP_CAT_GPU_SHL);
 	m_coreStatsTemplate->addStatistic(m_OP_CAT_GPU_SHL64);
 	m_coreStatsTemplate->addStatistic(m_OP_CAT_GPU_SHR);
@@ -2353,6 +2393,7 @@ void all_stats_c::initialize(ProcessorStatistics* m_ProcessorStats, CoreStatisti
 	m_DIST_SCHED_FAILED_REASON_SUCCESS->addMember(SCHED_FAILED_REASON_SUCCESS);
 	m_DIST_SCHED_FAILED_REASON_SUCCESS->addMember(SCHED_FAILED_OPERANDS_NOT_READY);
 	m_DIST_SCHED_FAILED_REASON_SUCCESS->addMember(SCHED_FAILED_NO_PORTS);
+	m_DIST_SCHED_FAILED_REASON_SUCCESS->addMember(SCHED_FAILED_FENCE_ACTIVE);
 	m_DIST_OP_CAT_XED_CATEGORY_INVALID->addMember(OP_CAT_XED_CATEGORY_INVALID);
 	m_DIST_OP_CAT_XED_CATEGORY_INVALID->addMember(OP_CAT_XED_CATEGORY_3DNOW);
 	m_DIST_OP_CAT_XED_CATEGORY_INVALID->addMember(OP_CAT_XED_CATEGORY_AES);
@@ -2471,6 +2512,8 @@ void all_stats_c::initialize(ProcessorStatistics* m_ProcessorStats, CoreStatisti
 	m_DIST_OP_CAT_XED_CATEGORY_INVALID->addMember(OP_CAT_GPU_MAD24);
 	m_DIST_OP_CAT_XED_CATEGORY_INVALID->addMember(OP_CAT_GPU_MAD);
 	m_DIST_OP_CAT_XED_CATEGORY_INVALID->addMember(OP_CAT_GPU_MAD64);
+	m_DIST_OP_CAT_XED_CATEGORY_INVALID->addMember(OP_CAT_GPU_MADC);
+	m_DIST_OP_CAT_XED_CATEGORY_INVALID->addMember(OP_CAT_GPU_MADC64);
 	m_DIST_OP_CAT_XED_CATEGORY_INVALID->addMember(OP_CAT_GPU_MAX);
 	m_DIST_OP_CAT_XED_CATEGORY_INVALID->addMember(OP_CAT_GPU_MAX64);
 	m_DIST_OP_CAT_XED_CATEGORY_INVALID->addMember(OP_CAT_GPU_MEMBAR_CTA);
@@ -2514,6 +2557,8 @@ void all_stats_c::initialize(ProcessorStatistics* m_ProcessorStats, CoreStatisti
 	m_DIST_OP_CAT_XED_CATEGORY_INVALID->addMember(OP_CAT_GPU_SET64);
 	m_DIST_OP_CAT_XED_CATEGORY_INVALID->addMember(OP_CAT_GPU_SETP);
 	m_DIST_OP_CAT_XED_CATEGORY_INVALID->addMember(OP_CAT_GPU_SETP64);
+	m_DIST_OP_CAT_XED_CATEGORY_INVALID->addMember(OP_CAT_GPU_SHFL);
+	m_DIST_OP_CAT_XED_CATEGORY_INVALID->addMember(OP_CAT_GPU_SHFL64);
 	m_DIST_OP_CAT_XED_CATEGORY_INVALID->addMember(OP_CAT_GPU_SHL);
 	m_DIST_OP_CAT_XED_CATEGORY_INVALID->addMember(OP_CAT_GPU_SHL64);
 	m_DIST_OP_CAT_XED_CATEGORY_INVALID->addMember(OP_CAT_GPU_SHR);

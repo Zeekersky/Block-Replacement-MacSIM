@@ -362,7 +362,7 @@ int process_manager_c::create_process(string appl, int repeat, int pid)
 
 
   // Setup file name of process trace
-  unsigned int dot_location = appl.find_last_of(".");
+  size_t dot_location = appl.find_last_of(".");
   if (dot_location == string::npos)
     ASSERTM(0, "file(%s) formats should be <appl_name>.<extn>\n", appl.c_str());
 
@@ -383,9 +383,9 @@ int process_manager_c::create_process(string appl, int repeat, int pid)
     ASSERTM(0, "error reading from file:%s", appl.c_str());
 
   int trace_ver = -1;
-  if (trace_type != "x86") {
-    if (!(trace_config_file >> trace_ver) || trace_ver != 131) {
-      ASSERTM(0, "this version of the simulator supports only version 1.31 of the GPU traces\n");
+  if (trace_type != "x86" && trace_type != "a64") {
+    if (!(trace_config_file >> trace_ver) || trace_ver != 14 ) {
+      ASSERTM(0, "this version of the simulator supports only version 1.4 of the GPU traces\n");
     }
   }
     
@@ -463,7 +463,7 @@ void process_manager_c::setup_process(process_s* process)
   // trace file name
   string trace_info_file_name = process->m_applications[process->m_current_vector_index++];
 
-  unsigned int dot_location = trace_info_file_name.find_last_of(".");
+  size_t dot_location = trace_info_file_name.find_last_of(".");
   if (dot_location == string::npos)
     ASSERTM(0, "file(%s) formats should be <appl_name>.<extn>\n", 
         trace_info_file_name.c_str());
@@ -471,7 +471,10 @@ void process_manager_c::setup_process(process_s* process)
   // get the base name of current application (without extension)
   process->m_current_file_name_base = trace_info_file_name.substr(0, dot_location);
 
-
+  // get hmc info if hmc inst is enabled
+  if (*KNOB(KNOB_ENABLE_HMC_INST))
+      hmc_function_c::hmc_info_read(process->m_current_file_name_base, process->m_hmc_info);
+  
   // open TRACE_CONFIG file
   ifstream trace_config_file;
   trace_config_file.open(trace_info_file_name.c_str(), ifstream::in);
@@ -501,9 +504,9 @@ void process_manager_c::setup_process(process_s* process)
 
   
   int trace_ver = -1;
-  if (trace_type != "x86") {
-    if (!(trace_config_file >> trace_ver) || trace_ver != 131) {
-      ASSERTM(0, "this version of the simulator supports only version 1.31 of the GPU traces\n");
+  if (trace_type != "x86" && trace_type != "a64") {
+    if (!(trace_config_file >> trace_ver) || trace_ver != 14 ) {
+      ASSERTM(0, "this version of the simulator supports only version 1.4 of the GPU traces\n");
     }
   }
   
@@ -763,10 +766,16 @@ thread_s *process_manager_c::create_thread(process_s* process, int tid, bool mai
   if (process->m_ptx) {
     trace_info->m_prev_trace_info = new trace_info_gpu_s;
     trace_info->m_next_trace_info = new trace_info_gpu_s;
-  }
-  else {
-    trace_info->m_prev_trace_info = new trace_info_cpu_s;
-    trace_info->m_next_trace_info = new trace_info_cpu_s;
+  } else {
+    if (KNOB(KNOB_LARGE_CORE_TYPE)->getValue() == "x86") {
+      trace_info->m_prev_trace_info = new trace_info_cpu_s;
+      trace_info->m_next_trace_info = new trace_info_cpu_s;
+    } else if (KNOB(KNOB_LARGE_CORE_TYPE)->getValue() == "a64") {
+      trace_info->m_prev_trace_info = new trace_info_a64_s;
+      trace_info->m_next_trace_info = new trace_info_a64_s;
+    } else {
+      ASSERTM(0, "Wrong core type %s\n", KNOB(KNOB_LARGE_CORE_TYPE)->getValue().c_str());
+    }
   }
   thread_start_info_s* start_info = &process->m_thread_start_info[tid];
 
@@ -815,6 +824,8 @@ thread_s *process_manager_c::create_thread(process_s* process, int tid, bool mai
 
   trace_info->m_fetch_data->init();
 
+  // changed by Lifeng
+  trace_info->has_cached_inst = false;
   return trace_info;
 }
 
@@ -949,10 +960,19 @@ int process_manager_c::terminate_thread(int core_id, thread_s* trace_info, int t
     delete temp;
   }
   else {
-    trace_info_cpu_s *temp = static_cast<trace_info_cpu_s*>(trace_info->m_prev_trace_info);
-    delete temp;
-    temp = static_cast<trace_info_cpu_s*>(trace_info->m_next_trace_info);
-    delete temp;
+    if (KNOB(KNOB_LARGE_CORE_TYPE)->getValue() == "x86") {
+      trace_info_cpu_s *temp = static_cast<trace_info_cpu_s*>(trace_info->m_prev_trace_info);
+      delete temp;
+      temp = static_cast<trace_info_cpu_s*>(trace_info->m_next_trace_info);
+      delete temp;
+    } else if (KNOB(KNOB_LARGE_CORE_TYPE)->getValue() == "a64") {
+      trace_info_a64_s *temp = static_cast<trace_info_a64_s*>(trace_info->m_prev_trace_info);
+      delete temp;
+      temp = static_cast<trace_info_a64_s*>(trace_info->m_next_trace_info);
+      delete temp;
+    } else {
+      ASSERTM(0, "Wrong core type %s\n", KNOB(KNOB_LARGE_CORE_TYPE)->getValue().c_str());
+    }
   }
 
   gzclose(trace_info->m_trace_file);
@@ -1172,15 +1192,18 @@ int process_manager_c::sim_schedule_thread_block(int core_id, bool initial)
   core_c* core          = m_simBase->m_core_pointers[core_id];
   int new_block_id      = -1; 
   int fetching_block_id = core->m_fetching_block_id; 
-  DEBUG("core:%d fetching_block_id:%d total_thread_num:%d dispatched_thread_num:%d "
-      "running_block_num:%d block_retired:%d \n",
-      core_id, fetching_block_id, 
-      (m_simBase->m_block_schedule_info[fetching_block_id]->m_total_thread_num), 
-      (m_simBase->m_block_schedule_info[fetching_block_id]->m_dispatched_thread_num), 
-      core->m_running_block_num, m_simBase->m_block_schedule_info[fetching_block_id]->m_retired);
+  if ((fetching_block_id != -1) && 
+      m_simBase->m_block_schedule_info.find(fetching_block_id) != m_simBase->m_block_schedule_info.end()) {
+    DEBUG("core:%d fetching_block_id:%d total_thread_num:%d dispatched_thread_num:%d "
+        "running_block_num:%d block_retired:%d \n",
+        core_id, fetching_block_id, 
+        (m_simBase->m_block_schedule_info[fetching_block_id]->m_total_thread_num), 
+        (m_simBase->m_block_schedule_info[fetching_block_id]->m_dispatched_thread_num), 
+        core->m_running_block_num, m_simBase->m_block_schedule_info[fetching_block_id]->m_retired);
+  }
 
 
-  // All threads from the currently serveced block should be scheduled before a new block
+  // All threads from the currently serviced block should be scheduled before a new block
   // executes. Check currently fetching block has other threads to schedule
   if ((fetching_block_id != -1) && 
       m_simBase->m_block_schedule_info.find(fetching_block_id) != m_simBase->m_block_schedule_info.end() &&

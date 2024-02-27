@@ -1,4 +1,4 @@
-file /home/akash/Use/macsim-2.01/macsim/SConstruct,line 52:
+file /home/akash/Use/Work/macsim-2.3.0/SConstruct,line 51:
 	Configure(confdir = .sconf_temp)
 scons: Configure: Checking for c++0x conformance...
 scons: Configure: ".sconf_temp/conftest_d8f1c17d6d94684390033f3d7c06e9e5_0.cpp" is up to date.

@@ -51,15 +51,15 @@ if sys.platform != "darwin":
 
 ## DEBUG build
 if flags['debug'] == '1':
-  env['CPPFLAGS'] = '-g -std=c++0x %s' % warn_flags
+  env['CPPFLAGS'] = '-g -std=c++11 %s' % warn_flags
 ## GPROF build
 elif flags['gprof'] == '1':
-  env['CPPFLAGS'] = '-pg -std=c++0x %s' % warn_flags
+  env['CPPFLAGS'] = '-pg -std=c++11 %s' % warn_flags
   env['CPPDEFINES'].append('NO_DEBUG')
   env['LINKFLAGS'].append('-pg')
 ## OPT build
 else:
-  env['CPPFLAGS'] = '-O3 -std=c++0x -funroll-loops %s' % warn_flags
+  env['CPPFLAGS'] = '-O3 -std=c++11 -funroll-loops %s' % warn_flags
   env['CPPDEFINES'].append('NO_DEBUG')
 
 if flags['val'] == '1':
@@ -98,7 +98,7 @@ IRIS_srcs = [
 
 if flags['iris'] == '1':
   if flags['power'] == '1':
-    env.Library('iris', IRIS_kernel_srcs + IRIS_srcs, CPPDEFINES=env['CPPDEFINES'] + ['POWER_EI', 'IRIS'])
+    env.Library('iris', IRIS_kernel_srcs + IRIS_srcs, CPPDEFINES=env['CPPDEFINES'] + ['IRIS'])
   else:
     env.Library('iris', IRIS_kernel_srcs + IRIS_srcs, CPPDEFINES=env['CPPDEFINES'] + ['IRIS'])
 
@@ -229,12 +229,12 @@ macsim_src = [
   'src/network_simple.cc',
   'src/trace_read_cpu.cc',
   'src/trace_read_gpu.cc',
+  'src/trace_read_a64.cc',
   'src/page_mapping.cc',
+  'src/dyfr.cc',
+  'src/hmc_process.cc',
 ]
 
-
-if flags['power'] == '1':
-  macsim_src.append('src/ei_power.cc')
 
 
 #########################################################################################
@@ -244,9 +244,7 @@ libraries = ['z']
 
 
 if flags['power'] == '1':
-  libraries.append('ei')
   libraries.append('pthread')
-  env['CPPDEFINES'].append('POWER_EI')
 
 if flags['dram'] == '1':
   libraries.append('dramsim')
