@@ -1,3 +1,4 @@
+This code base is to implement a Block Replacement Policy in Hybrid cache by which life time of Non-Volatile Cache is been improved.
 
 == To install MacSim ==
   Please refer to INSTALL file
@@ -16,4 +17,3 @@
     ./build.py -d
   Gprof version
     ./build.py -p
-
