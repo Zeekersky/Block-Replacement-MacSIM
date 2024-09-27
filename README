@@ -17,5 +17,3 @@
     ./build.py -d
   Gprof version
     ./build.py -p
-
-For Detailed Description, Read this [PDF](https://drive.google.com/file/d/147t8cmyRIdu8aQ-vqRVnNwZVjP8NyWp_/view?usp=sharing).
