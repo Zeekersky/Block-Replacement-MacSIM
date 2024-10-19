@@ -23,9 +23,9 @@ To build **MacSim**, the following are required:
 
 3. **SConstruct:**  
    Install `scons` using the following command:  
-   ```bash
+      ```bash
         sudo apt-get install scons
-    ```
+      ```
 
 4. **Libraries:**  
    The following libraries are required:  
@@ -65,6 +65,6 @@ To build **MacSim**, the following are required:
         - [trace_file_list](https://github.com/Zeekersky/Block-Replacement-MacSIM/blob/main/bin/trace_file_list)
     
     - Run the MacSIM binary:
-    ```bash
+       ```bash
         ./macsim
-    ```
+       ```
