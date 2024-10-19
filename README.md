@@ -38,7 +38,7 @@ To build **MacSim**, the following are required:
         ```bash
         sudo apt-get install python
         ```
-5. **Build Instructions:**  
+## Build Instructions  
    To compile MacSim, follow these steps:  
     - Clone the repository (if not already cloned):
         ```bash
@@ -53,7 +53,7 @@ To build **MacSim**, the following are required:
         
         If successful, you should see the 'macsim' binary inside the 'bin' directory.
 
-6. **Run Instructions:**  
+## Run Instructions  
    After building the project, follow these steps to run MacSim:  
     - Navigate to the bin directory:
         ```bash
